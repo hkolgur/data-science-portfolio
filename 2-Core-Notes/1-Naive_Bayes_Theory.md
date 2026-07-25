@@ -97,7 +97,7 @@ Pick the class with the largest posterior:
 > Final probability = prior of the class × product of feature likelihoods given
 > that class. This is why NB is called a **generative** model — it models the joint
 > distribution P(Ck, X), unlike discriminative models (e.g. logistic regression)
-> that model P(Ck|X) directly. **Classic interview question.**
+> that model conditional probability  P(Ck|X) directly. Generative models learn the joint probability P(x, y).Discriminative models learn the conditional probability P(y|x) **Classic interview question.**
 >
 -Logistic Regression doesn't care how the data was generated; it skips straight to predicting the boundary (P(C_k|X) given the inputs. Naive Bayes, on the other hand, models the full physics of the dataset (P(C_k, X) by looking at the prior and the likelihoods, allowing it to understand the complete data-generating process
 
