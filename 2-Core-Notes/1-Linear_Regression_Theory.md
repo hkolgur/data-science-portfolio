@@ -425,8 +425,7 @@ Regularization can be viewed as minimizing RSS subject to a constraint on weight
 
 | Metric | Formula | Notes |
 |---|---|---|
-| **R²** | 1 − RSS/TSS | explained variance by model.                                                                                           RSS = np.sum((y_actual - y_predicted) ** 2), 
-TSS = np.sum((y_actual - y_mean) ** 2) |
+| **R²** | 1 − RSS/TSS | explained variance by model.                                                                                                                       RSS = np.sum((y_actual - y_predicted) ** 2),                                                                                                       TSS = np.sum((y_actual - y_mean) ** 2) |
 | **Adjusted R²** | 1 − (1−R²)(n−1)/(n−p−1) | X_test.shape()->n,p.Penalizes model size p; only rises if a new feature improves fit more than chance |
 
 ### Q: Why can't you use R² when adding 50 new features? (Best value 1.0 for both)
