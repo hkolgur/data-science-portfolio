@@ -192,12 +192,40 @@ print(model.summary())  # also reports Durbin-Watson automatically
 
 ### Q: What is multicollinearity, and how does it affect the coefficients?
 - **What:** Predictors are highly correlated with each other.
-- **Effect on weights:** They become unstable (high variance across resamples), signs can flip, magnitudes inflate, individual p-values become unreliable — the model can't attribute credit between correlated features.
-- **Effect on predictions:** Largely unaffected. R² is fine. This asymmetry is the classic follow-up.
+- **Effect on weights:** They become unstable , signs can flip, magnitudes inflate.Cannot say which feature is contributing .
+- **Effect on predictions:** Largely unaffected. R² is fine. This asymmetry is the classic follow-up. high R² does not mean features are free from multicollinearity.
 - **Detection:**
-  - Correlation matrix (only catches pairwise relationships.  in Python's Pandas) and helps you visually spot which specific pairs of variables are overlapping.Cons: It can only detect correlations between pairs of variables. Multicollinearity can still exist when three or more variables work together to create a linear relationship, even if the correlation between any two is low)
+  - Correlation matrix. It can only detect correlations between pairs of variables. Multicollinearity can still exist when three or more variables work together to create a linear relationship, even if the correlation between any two is low)
   - Best Alternative than Corr is VIF.
   - **VIF:** VIFⱼ = 1 / (1 − Rⱼ²), where Rⱼ² comes from regressing feature j on all other features. Rule of thumb: VIF > 5–10 is a concern.
+  - **Code:**
+```python
+import pandas as pd
+import numpy as np
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+
+def check_multicollinearity(X_dataframe):
+    """
+    Calculates Variance Inflation Factor (VIF) for a dataframe of features.
+    Automatically adds a constant line as required by statsmodels.
+    """
+    # Create a copy and add an intercept/constant column
+    X = X_dataframe.copy()
+    X['intercept'] = 1.0
+    
+    # Calculate VIF for each feature
+    vif_data = pd.DataFrame()
+    vif_data["Feature"] = X_dataframe.columns
+    vif_data["VIF"] = [variance_inflation_factor(X.values, i) for i in range(X_dataframe.shape[1])]
+    
+    return vif_data
+
+# --- Example Usage ---
+# df_features = pd.DataFrame(...) # Your independent variables
+# print(check_multicollinearity(df_features))
+```
+              
+
 - **Fixes:** Drop or combine redundant features, PCA, domain-driven selection, or **Ridge regression** (shrinks correlated weights toward each other and stabilizes them).
 
 ### Q: How do you detect and fix heteroscedasticity?
