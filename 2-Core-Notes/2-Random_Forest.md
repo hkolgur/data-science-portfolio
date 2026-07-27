@@ -36,6 +36,19 @@ data's patterns "from various ends."
 > Averaging k models reduces variance by ~1/k only if errors are independent;
 > column sampling is what pushes tree errors toward independence.
 
+### The formula version (say this and you've answered the question completely)
+```
+Var(forest) = ρσ² + (1 − ρ)·σ²/k
+```
+Adding trees only shrinks the **second** term. `ρσ²` is a **floor** that more
+trees can never get below. Bagging alone leaves ρ high (every tree splits on
+salary first); **column sampling is the only lever RF has on ρ**, which is why
+it's not optional — it's what separates RF from plain bagged trees.
+
+Trade-off to name: lowering `max_features` pushes ρ down (good) but also makes
+each individual tree weaker (raises σ² and bias slightly). `√d` is the empirical
+sweet spot, not a theorem.
+
 ---
 
 ## 3. Bias–Variance in RF
@@ -60,6 +73,17 @@ serve as a **free validation set**:
 - Aggregate → **OOB score** ≈ cross-validation accuracy, with **no extra data
   split and no extra training**
 - In sklearn: `oob_score=True`
+
+**Why it's a valid estimate:** a point is predicted only by trees that never saw
+it, which is exactly the condition a validation set satisfies. So OOB gives a
+nearly unbiased estimate of generalization error essentially for free — the
+single best practical argument for RF on small-to-medium data, where you'd
+otherwise sacrifice rows to a holdout.
+
+> ⚠️ Caveats worth having ready: OOB uses only ~37% of the trees per point, so it
+> is **slightly pessimistic** for small k; it is unreliable when k is small; and
+> it does **not** replace a proper test set when your data has time ordering or
+> grouped/duplicated rows (the bootstrap ignores both).
 
 ---
 
@@ -103,9 +127,35 @@ Effect: **faster training** (no threshold search), **lower variance**, slightly
 
 ## 8. Practical Considerations
 
-- **Feature importance:** average the impurity-decrease importances over all k
-  trees — more stable than a single tree's. Same caveats (cardinality bias,
-  correlated features) → consider permutation importance.
+### Feature importance — the three flavors (know the differences) ⭐
+
+| Method | How it works | Watch out for |
+|---|---|---|
+| **Impurity / Gini ("MDI")** — sklearn's `feature_importances_` | Average impurity decrease each feature produces, over all trees | **Biased toward high-cardinality and continuous features** (more split points = more chances to look good). Computed on *training* data, so it can reward overfitting. |
+| **Permutation importance** | Shuffle one column, measure the drop in validation score | Slower; **splits credit unpredictably among correlated features** — two duplicate columns can both look useless because shuffling one leaves the other intact |
+| **SHAP** | Game-theoretic per-prediction attribution | Slowest, but gives **per-row** explanations, not just a global ranking |
+
+**Default answer:** don't trust impurity importance for anything that matters —
+use permutation importance on a **held-out set**, and SHAP when you need to
+explain individual predictions to a stakeholder.
+
+**The correlated-features trap** (very common follow-up): with two highly
+correlated features, RF splits on them roughly at random across trees, so *each*
+gets ~half the importance. Neither looks important, even though the underlying
+signal is strong. Never conclude "this feature doesn't matter" from a low
+importance score without checking correlations first.
+
+### Missing values
+RF has **no native handling** — `sklearn`'s implementation requires you to impute
+before fitting. (Contrast: XGBoost learns a default direction per split, so it
+handles NaNs natively. This is a real, frequently-asked difference between RF and
+boosted libraries.)
+
+Practical options: median/mode imputation, or add a binary `was_missing`
+indicator column so the tree can split on missingness itself — often the better
+move when the data is **not** missing at random.
+
+### Other practical points
 - **Cases:** everything from the Decision Tree notes carries over (no scaling
   needed, native multi-class, no similarity-matrix input, axis-parallel
   boundaries, response-encode high-cardinality categoricals) — *except* the
@@ -117,7 +167,7 @@ Effect: **faster training** (no threshold search), **lower variance**, slightly
 ### Disadvantages
 1. Training slows with **high dimensionality** (many features per split search)
 2. **Less interpretable** than one tree — hundreds of trees ≈ black box
-   (use feature importance / SHAP for explanations)
+   (use feature importance, **PDP / ICE plots**, or SHAP for explanations)
 3. Larger memory footprint and higher prediction latency than a single tree
 4. Usually beaten on accuracy by well-tuned gradient boosting on tabular data
 
@@ -151,7 +201,11 @@ Effect: **faster training** (no threshold search), **lower variance**, slightly
 7. max_features: what are the defaults for classification vs regression, and
    what happens as you lower it?
 8. 🔍 (Occasional) What are Extremely Randomized Trees and when would you prefer them?
-9. How is feature importance computed in RF and what are its pitfalls?
+9. How is feature importance computed in RF, and what are its pitfalls?
+9b. Impurity vs permutation vs SHAP importance — when would you use each?
+9c. Two of your features are highly correlated and both show low importance.
+    What's going on?
+9d. How does RF handle missing values? (It doesn't — contrast with XGBoost.)
 10. Train/test complexity of RF; how does it behave in very high dimensions?
 11. Why might a tuned XGBoost beat RF on tabular data — and when would you still
     pick RF? (Low tuning budget, parallel training, robustness.)
