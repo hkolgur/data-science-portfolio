@@ -1,4 +1,4 @@
-# Ensembles (Bagging, Boosting, Stacking, Cascading) — Interview Notes
+l# Ensembles (Bagging, Boosting, Stacking, Cascading) — Interview Notes
 
 ## 1. What is an Ensemble?
 
@@ -203,10 +203,14 @@ it. Plot **training error and validation error vs. training set size**:
 | Curves still have a **large gap**, validation still falling | **High variance** | **Yes.** Keep collecting; the gap closes as n grows. |
 | Curves converged, error near the noise floor | Well fit | No — you're done |
 
+
 The intuition: **more data reduces variance, not bias.** A linear model fed a
 million points is still a linear model. So "should we spend three months
 labelling more data?" is a bias-vs-variance question, and learning curves are how
 you answer it with evidence rather than a hunch.
+
+![Training , Test Error VS Size of Test Data (images/train-test-error.png)
+Above we see as the Test Data size increases beyond 8000 points, the training error doesn't improve. 
 
 ### 2.7 The complexity curve (slide 28)
 
