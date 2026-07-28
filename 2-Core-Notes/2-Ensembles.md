@@ -62,6 +62,25 @@ Bias–variance decomposition converts **"my error is high"** into **"my error i
 high *because of this specific term*,"** which maps to a specific fix. That is
 the entire point of it, and it's the answer to "why do we do bias-variance
 decomposition?" — a debugging framework, not a piece of trivia.
+## Diagnostics for High Model Error (MSE)
+
+To determine if high Test MSE is caused by **high bias** or **high variance**, follow these steps:
+
+### 1. Train vs. Validation Error Split
+* **High Bias (Underfitting):** High training error AND high validation error.
+* **High Variance (Overfitting):** Low training error BUT high validation error.
+
+### 2. Learning Curves (Error vs. Dataset Size)
+* **Bias Indicator:** Both curves plateau early and flatten out close together at an unacceptably high error rate.
+* **Variance Indicator:** A large, persistent gap remains between the training and validation curves.
+
+### 3. Human/Bayes Error Baseline
+* Compare training error to human performance or an established baseline.
+* A large gap between baseline and training error signals a massive **avoidable bias** problem.
+
+### 4. K-Fold Cross-Validation Consistency
+* Check the standard deviation of error scores across data folds.
+* Wildly fluctuating error scores across different folds signal **high variance**.
 
 ### 2.2 Setup
 
