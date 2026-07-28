@@ -345,7 +345,7 @@ Soft Voting (Average Probability): Each model gives its exact probability percen
  Average for "Yes": (51% + 51% + 1%) / 3 = 34.33% "Yes". 
 Average for "No": (49% + 49% + 99%) / 3 = 65.67%
 
-### Why it reduces variance
+### Why it(bootstrapping) reduces variance
 Any single point influences only some of the bootstrap samples, so
 adding/removing a few points changes only a few base models — the aggregate
 barely moves. Averaging k models with (partially) independent errors shrinks
@@ -354,6 +354,13 @@ variance roughly like averaging noisy measurements, **without increasing bias**
 
 Result with deep-tree bases: `low bias + high variance` bases → aggregated model
 is `low bias + low variance`.
+
+## Why Bootstrapping + Aggregation (Bagging) Reduces Variance
+
+1. **Isolation of Noise:** Any single data point only appears in a subset of bootstrap samples. Changes to a few data points only affect a few base models; the aggregate ensemble remains stable.
+2. **Error Cancellation:** Averaging $K$ partially independent models cancels out random, uncorrelated errors. 
+3. **The Bias Benefit:** Variance shrinks because the models' errors decouple, but bias remains unchanged because the base models retain their original training objective.
+
 
 ### Bagging's effect on each of the three terms (two-line proofs — worth memorizing)
 
