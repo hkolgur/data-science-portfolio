@@ -375,29 +375,11 @@ Let ȳ = (1/k)·Σ yᵢ be the bagged prediction, where yᵢ is base model i's o
 The bias line is the one people forget. It's also the reason base learners must
 be **low-bias to begin with** (deep trees): bagging will not rescue a stump.
 
-### The formula behind "diversity matters" (ties back to §2)
-The 1/k above assumed **independent** models. Bootstrap samples come from the
-same D, so the models are correlated. With pairwise correlation ρ and per-model
-variance σ²:
-
-```
-Var(average) = ρσ² + (1 − ρ)·σ²/k
-```
-
-- ρ = 0 (fully decorrelated) → variance shrinks to **σ²/k**: more models keep helping
-- ρ = 1 (identical models) → variance stays **σ²**: the ensemble does *nothing*
 
 **Q: does correlation increase or decrease variance?** It *increases* it —
-correlation is what stops bagging from working. Anything that adds variability
-between models lowers ρ and therefore helps: different bootstrap samples,
-feature subsampling, different algorithms (tree + NN + logistic regression), or
-even the same algorithm with different configurations (varying NN depth/width).
+Does correlation between base models increase or decrease ensemble variance?" or "Why do we need diverse models in an ensemble?"
 
-This is the precise answer to "why must base models be diverse?" — the second
-term vanishes as k grows, so **ρσ² is the floor**. It's also exactly why Random
-Forest adds feature subsampling on top of bootstrapping: bootstrapping alone
-leaves the trees correlated (they all pick the same dominant split feature), so
-RF attacks ρ directly.
+Correlation increases ensemble variance.To minimize ensemble variance, our base models must be as diverse and uncorrelated as possible.
 
 ### Bootstrap math (interview favorite)
 Probability a given point is NOT picked in one draw = (1 − 1/n).
