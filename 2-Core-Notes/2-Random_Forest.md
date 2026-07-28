@@ -19,6 +19,19 @@ Two sources of randomness decorrelate the trees:
 Aggregation: **majority vote** for classification; **mean** (sometimes median)
 for regression.
 
+"Why do you use Random Forests over a regular Decision Tree?
+I use Random Forests over a single Decision Tree primarily to combat variance and overfitting. A single decision tree has high capacity and can easily memorize training noise, leading to high variance. A Random Forest solves this by combining an ensemble of trees to average out that noise, giving us a far more stable and generalizable model."
+
+## Single Decision Tree vs. Random Forest
+
+* **The Problem:** Single trees have high variance, low bias, and overfit easily by creating deep, complex decision boundaries.
+* **The Solution (RF):** Keeps the low bias of trees but slashes variance by averaging an ensemble of uncorrelated trees.
+* **The Variance Killers:** 
+  1. Row Bootstrapping (Bagging)
+  2. Column Subsampling (Forces tree diversity so they don't all split on the same dominant feature)
+* **Production Perks:** Free validation via OOB error, highly robust to outliers, and built-in feature importance for business transparency.
+
+
 ---
 
 ## 2. Why does RF work? (Decorrelation — key interview story)
