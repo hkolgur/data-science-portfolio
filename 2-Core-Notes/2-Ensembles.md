@@ -209,7 +209,7 @@ million points is still a linear model. So "should we spend three months
 labelling more data?" is a bias-vs-variance question, and learning curves are how
 you answer it with evidence rather than a hunch.
 
-![Training , Test Error VS Size of Test Data (images/train-test-error.png)
+![Training Error-Test Error VS Size of Test Data](images/train-test-error.png)
 Above we see as the Test Data size increases beyond 8000 points, the training error doesn't improve. 
 
 ### 2.7 The complexity curve (slide 28)
