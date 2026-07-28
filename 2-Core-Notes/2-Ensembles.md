@@ -328,6 +328,14 @@ The Proxy: We treat our dataset D as a miniature universe. Sampling with replace
 The Consistency: According to the Law of Large Numbers, as our dataset size grows, our miniature universe P_D becomes an incredibly accurate reflection of the real world P.
 
 "In an ideal world, the best way to kill model variance is to pull multiple fresh datasets from the true population and average them. Since we rarely have the budget or resources for that, we use bootstrapping as a statistical proxy.We treat our single dataset as the population itself. Sampling from it with replacement is mathematically sampling from its empirical distribution. As our data size grows, that empirical distribution converges to the true population distribution, making the proxy highly legitimate.The only caveat I keep in mind is that because these samples aren't truly independent, the variance reduction won't be quite as perfect as pulling entirely fresh data from the wild."
+## Bootstrapping Placement in ML Pipeline
+
+* **Phase:** Training Phase ONLY.
+* **Process:** 
+  1. Split raw data into Train and Test. 
+  2. Bootstrap the *Train* set into K subsets. 
+  3. Train K separate models.
+* **Warning:** Never bootstrap the Test set or bootstrap before splitting. This creates duplicate data points across the split, causing severe data leakage.
 
 Hard Voting vs. Soft VotingHard Voting (Majority Wins): 
 
