@@ -315,7 +315,7 @@ high-bias learners and additively drives the bias down.
 ### bootstrapping    
 Why Bootstrapping is Legitimate: 
 
-Bootstrapping is legitimate because sampling with replacement from our dataset mirrors sampling from the true population, using the empirical distribution as a proxy
+Bootstrapping is legitimate because sampling with replacement from our training dataset mirrors sampling from the true population, using the empirical distribution as a proxy.Create multiple distinct training datasets out of your single original training pool.
 
 How Bootstrapping Works:
 
