@@ -534,6 +534,12 @@ AdaBoost classifiers — CV-role material only.)
 #### 5. [MUST-KNOW] Explain stacking. Why must the meta-model be trained on out-of-fold predictions? What leakage occurs otherwise?
 * **Stacking:** An ensemble technique where a meta-model learns how to optimally combine the predictions of multiple heterogenous base models.
 * **The Leakage Risk:** If you train the meta-model on the exact same data the base models used for training, the base predictions will be artificially flawless. The meta-model will suffer severe data leakage, over-rely on the most overfitted base model, and fail completely on true test data. Out-of-fold predictions ensure the meta-model evaluates base models on unseen data.
+* ## K-Fold vs. Out-of-Fold (OOF)
+
+* **K-Fold Cross-Validation:** The overarching technique of partitioning data into $K$ groups to systematically train and validate a model.
+* **Out-of-Fold (OOF):** The specific held-out partition during a K-Fold iteration. 
+* **OOF Predictions:** Predictions made strictly on data rows that were excluded from that model's training phase. These are stitched together to train stacking meta-models without data leakage.
+
 
 ---
 
