@@ -77,7 +77,7 @@ sweet spot, not a theorem.
 
 ---
 
-## 4. Out-of-Bag (OOB) Evaluation
+## 4. Out-of-Bag (OOB) Evaluation (oob_score=True)
 
 For each tree Mi, the ≈36.8% points not in its bootstrap sample (OOB points)
 serve as a **free validation set**:
