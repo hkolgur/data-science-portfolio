@@ -505,42 +505,176 @@ AdaBoost classifiers — CV-role material only.)
 | **Interpretability is a hard requirement** | **Single Tree / Linear Model** | If you *must* ensemble for accuracy, use **SHAP** or **PDP** values to explain the black-box predictions to stakeholders. |
 | **Low tuning budget** | **Random Forest** | Out-of-the-box defaults are incredibly robust. GBDT requires heavy hyperparameter tuning to avoid overfitting. |
 ---
+## 7. Frequently Asked Interview Questions & Solutions
+
+### Question 1: The Bias-Variance Foundation
+
+#### 1a. Write the bias–variance decomposition. Which term does bagging reduce and which does boosting reduce? What base learners does each therefore prefer?
+* **The Formula:** $\text{Total Error} = \text{Bias}^2 + \text{Variance} + \text{Irreducible Error}$
+* **Bagging:** Reduces **Variance**. It prefers **high-variance, low-bias** base learners (e.g., deep, unpruned decision trees).
+* **Boosting:** Reduces **Bias**. It prefers **high-bias, low-variance** base learners (e.g., shallow decision trees/stumps).
+
+#### 1b. Derive it. Where does the cross term go, and why is it zero?
+When decomposing the expected squared error $\mathbb{E}[(y - \hat{f}(x))^2]$, expanding the algebraic terms yields a cross term: $2 \cdot \mathbb{E}[(\text{Bias}) \cdot (\hat{f}(x) - \mathbb{E}[\hat{f}(x)])]$. 
+* **Why it goes to zero:** The bias term is a deterministic constant relative to the evaluation point. When taking the expectation of the remaining factor, $\mathbb{E}[\hat{f}(x) - \mathbb{E}[\hat{f}(x)]]$ resolves to $\mathbb{E}[\hat{f}(x)] - \mathbb{E}[\hat{f}(x)] = 0$. The entire cross term vanishes cleanly.
+
+#### 1c. Why do we do bias–variance decomposition at all?
+* **Answer:** To systematically debug a high test error. It instantly transforms a generic problem ("my error is high") into a specific structural diagnosis, telling you exactly which engineering fix to apply instead of wasting weeks guessing blindly.
+
+#### 1d. Case Study: Diagnose the following two model scenarios.
+* **Scenario A: 2% Training Error / 15% Test Error**
+  * *Diagnosis:* **High Variance (Overfitting)**. The model is too complex and chasing training noise. 
+  * *Fixes:* Bagging, regularization (L1/L2, dropout, tree-depth limits), or collecting more data.
+* **Scenario B: 14% Training Error / 15% Test Error**
+  * *Diagnosis:* **High Bias (Underfitting)**. The model is too simple to capture the underlying patterns. 
+  * *Fixes:* Boosting, adding engineered features, or increasing model capacity (going deeper/wider).
+
+#### 1e. KNN with $k = 1$ vs. large $k$ — high bias or high variance, and why?
+* **$k = 1$:** **High Variance, Low Bias**. The model perfectly fits every single training point (0% training error), making it wildly sensitive to local dataset noise and outliers.
+* **Large $k$:** **High Bias, Low Variance**. The model averages predictions over a massive neighborhood. This smooths out local variance completely but creates a rigid boundary that misses complex local patterns.
+
+#### 1f. What is irreducible error, and how do you know when you've hit it?
+* **Definition:** The fundamental noise inherent in the data-generation process ($\sigma^2$), caused by unmeasured variables or random chance.
+* **How to identify:** You have hit it when your training and validation errors plateau completely, and adding more data, increasing model capacity, or heavy tuning yields absolutely zero performance gains.
+
+#### 1g. Is "reducing bias always increases variance" true?
+* **Answer:** No, it is only a general rule of thumb. **Bagging** and **collecting more training data** are two massive counterexamples where you can aggressively lower variance without degrading model bias.
+
+#### 1h. Does the decomposition hold for classification with 0–1 loss?
+* **Answer:** No, not additively. The standard clean additive decomposition ($\text{Bias}^2 + \text{Var} + \sigma^2$) is strictly derived for **squared loss (regression)**. Under 0–1 loss, bias and variance interact multiplicatively; for instance, high variance can sometimes accidentally correct a biased classification boundary.
+
+---
+
+### Question 2: Bagging & Bootstrapping Mechanics
+
+#### 2a. Why does bagging reduce variance without affecting bias?
+* **Variance Reduction:** Averaging $K$ partially independent model predictions cancels out random, uncorrelated errors.
+* **Bias Maintained:** Because each base model is trained on data sampled directly from the original distribution, they all retain the same fundamental structural capacity. The ensemble bias stays bounded at approximately the single base-model bias.
+
+#### 2b. Write $\text{Var(average)}$ in terms of $\rho$ and $k$. What happens at $\rho = 1$? Does correlation between models raise or lower the ensemble's variance?
+* **The Formula:** $\text{Ensemble Variance} = \frac{1-\rho}{K}\sigma^2 + \rho\sigma^2$ (where $\rho$ is model correlation, $K$ is number of models).
+* **At $\rho = 1$:** The first term vanishes, leaving $\text{Variance} = \sigma^2$. No variance reduction occurs.
+* **Conclusion:** Correlation **raises** ensemble variance. It forms a theoretical performance floor ($\rho\sigma^2$) that you cannot beat no matter how many models ($K$) you add.
+
+#### 2c. Prove in one line that bagging leaves bias unchanged. What does that imply about which base learners you should bag?
+* **Proof:** $\mathbb{E}\left[\frac{1}{K}\sum_{i=1}^K \hat{f}_i(x)\right] = \frac{1}{K}\sum_{i=1}^K \mathbb{E}[\hat{f}_i(x)] = \mathbb{E}[\hat{f}_1(x)]$.
+* **Implication:** Since ensemble bias equals base-model bias, you must choose base learners that already have exceptionally low bias (highly flexible models) to begin with.
+
+#### 2d. Why is bootstrapping a valid substitute for drawing fresh datasets?
+* **Answer:** According to the Law of Large Numbers, as your original dataset size grows, its empirical distribution ($P_D$) becomes an incredibly accurate mirror of the real-world distribution ($P$). Sampling with replacement from your dataset acts as an excellent mathematical proxy for sampling from the real world.
+
+#### 2e. Hard voting vs soft voting — which is better and why?
+* **Answer:** **Soft voting** is almost always better because it leverages model confidence scores (probabilities) instead of crude majority decisions. This allows a highly certain model (e.g., 99% "No") to correctly overrule multiple highly uncertain models (e.g., two models saying 51% "Yes").
+
+#### 2f. Why does bagging a linear regression barely help?
+* **Answer:** Linear regression is a low-variance, highly stable algorithm. Small changes in the training data do not shift its decision boundary. Bootstrapping it simply creates identical model clones; averaging identical clones yields zero variance reduction while wasting compute.
+
+#### 2g. When would you avoid bagging altogether?
+* **Answer:** Avoid bagging when your base model is highly sensitive to data perturbations in a way that destroys its baseline accuracy (e.g., high-bias models), when you have tight computational/latency budgets that forbid running parallel models, or when strict model interpretability is required.
+
+---
+
+### Question 3: The 63.2% Rule & Diversity
+
+#### 3a. Prove $\approx 63.2\%$ of points appear in a bootstrap sample. What are OOB points and what are they used for?
+* **The Proof:** 
+  1. Prob. of missing a specific row in 1 draw: $(1 - \frac{1}{N})$
+  2. Prob. of missing it across all $N$ draws: $(1 - \frac{1}{N})^N$
+  3. Taking the limit as $N \to \infty$: $\lim_{N \to \infty} (1 - \frac{1}{N})^N = \frac{1}{e} \approx 36.8\%$
+  4. Unique rows kept: $100\% - 36.8\% = \mathbf{63.2\%}$.
+* **OOB (Out-of-Bag) Points:** The $36.8\%$ of data points left out of a model's training sample. They serve as a **free, built-in validation set** to calculate generalized error without needing an explicit train/test split.
+
+#### 3b. Why must base models in an ensemble be diverse/decorrelated? What happens if they are identical?
+* **Answer:** If base models are identical ($\rho = 1$), their errors match perfectly. Averaging them provides zero error cancellation, locking the ensemble variance to the individual model's variance floor. Diversity is what allows uncorrelated errors to actively cancel out during aggregation.
+
+---
+
+### Question 4: Advanced Ensembles: Boosting, Stacking, & Cascading
+
+#### 4a. Bagging vs boosting — parallel vs sequential, and why.
+* **Bagging (Parallel):** Base models are independent because each bootstrap sample is drawn without looking at the others. Models can be trained simultaneously.
+* **Boosting (Sequential):** Every model is explicitly trained to correct the precise classification errors made by the previous model. It cannot be parallelized because step $N$ depends entirely on the output of step $N-1$.
+
+#### 4b. Explain stacking. Why must the meta-model be trained on out-of-fold predictions? What leakage occurs otherwise?
+* **Stacking:** An ensemble technique where a meta-model learns how to optimally combine the predictions of multiple heterogenous base models.
+* **The Leakage Risk:** If you train the meta-model on the exact same data the base models used for training, the base predictions will be artificially flawless. The meta-model will suffer severe data leakage, over-rely on the most overfitted base model, and fail completely on true test data. Out-of-fold predictions ensure the meta-model evaluates base models on unseen data.
+
+#### 4c. Stacking vs blending — precise difference.
+* **Stacking:** Uses full K-Fold cross-validation to generate out-of-fold predictions for the entire dataset, maximizing data efficiency.
+* **Blending:** Uses a single, simple holdout validation set (e.g., 20%) to train the meta-model. It is computationally faster but wastes a portion of the dataset.
+
+#### 4d. Why use predicted probabilities instead of hard labels as meta-features?
+* **Answer:** Hard labels strip away model confidence. Passing raw probabilities (e.g., 0.51 vs 0.99) preserves vital signal strength, allowing the meta-model to learn exactly *when* and *how much* to trust a specific base model's certainty.
+
+#### 4e. Why is stacking common in Kaggle but rare in production?
+
+
+---
 
 ## 7. Frequently Asked Interview Questions
 
 1. Write the bias–variance decomposition. Which term does bagging reduce and
    which does boosting reduce? What base learners does each therefore prefer?
-1b. **Derive it.** Where does the cross term go, and why is it zero?
-1c. **Why do we do bias–variance decomposition at all?** (Answer: to debug a high
-   test error — it tells you *which* fix to apply.)
-1d. Your model has 2% training error and 15% test error. Diagnose it. Now: 14%
-   training and 15% test — diagnose that. (Variance, then bias.)
-1e. KNN with k = 1 vs. large k — high bias or high variance, and why?
-1f. What is irreducible error, and how do you know when you've hit it?
-1g. Is "reducing bias always increases variance" true? (Rule of thumb; bagging
-   and more data are counterexamples.)
-1h. Does the decomposition hold for classification with 0–1 loss? (Not additively
-   — it's derived for squared loss.)
-2. Why does bagging reduce variance without (much) affecting bias?
+   
+  1b. **Derive it.** Where does the cross term go, and why is it zero?
+   
+  1c. **Why do we do bias–variance decomposition at all?** (Answer: to debug a high
+     test error — it tells you *which* fix to apply.)
+     
+  1d. Your model has 2% training error and 15% test error. Diagnose it. Now: 14%
+     training and 15% test — diagnose that. (Variance, then bias.)
+     ## Quick Diagnostics Case Study
+
+    * **2% Train / 15% Test:** High Variance (Overfitting). Model is too complex and chasing noise. Fix with Bagging, Regularization, or         More Data.
+    * **14% Train / 15% Test:** High Bias (Underfitting). Model is too simple and missing the pattern. Fix with Boosting, Adding                 Features, or Increasing Model Capacity.
+
+  1e. KNN with k = 1 vs. large k — high bias or high variance, and why?
+  
+  1f. What is irreducible error, and how do you know when you've hit it?
+  
+  1g. Is "reducing bias always increases variance" true? (Rule of thumb; bagging
+     and more data are counterexamples.)
+     
+  1h. Does the decomposition hold for classification with 0–1 loss? (Not additively
+     — it's derived for squared loss.)
+     
+3. Why does bagging reduce variance without (much) affecting bias?
+4. 
 2b. Write Var(average) in terms of ρ and k. What happens at ρ = 1? Does
    correlation between models raise or lower the ensemble's variance?
+   
 2c. Prove in one line that bagging leaves bias unchanged. What does that imply
    about which base learners you should bag?
+   
 2d. Why is bootstrapping a valid substitute for drawing fresh datasets?
+
 2e. Hard voting vs soft voting — which is better and why?
+
 2f. Why does bagging a linear regression barely help?
+
 2g. When would you *avoid* bagging altogether?
-3. Prove ≈63.2% of points appear in a bootstrap sample. What are OOB points and
+
+6. Prove ≈63.2% of points appear in a bootstrap sample. What are OOB points and
    what are they used for?
-4. Why must base models in an ensemble be diverse/decorrelated? What happens if
+   
+8. Why must base models in an ensemble be diverse/decorrelated? What happens if
    they are identical?
-5. Bagging vs boosting — parallel vs sequential, and why.
-6. Explain stacking. Why must the meta-model be trained on out-of-fold
+   
+10. Bagging vs boosting — parallel vs sequential, and why.
+    
+12. Explain stacking. Why must the meta-model be trained on out-of-fold
    predictions (what leakage occurs otherwise)?
-7. Stacking vs blending — precise difference.
-8. Why use predicted probabilities instead of hard labels as meta-features?
-9. Why is stacking common in Kaggle but rare in production?
-10. Describe cascading. When is it preferred, and how does it control cost/latency?
-11. 🔍 (Rare/CV roles) How does Viola–Jones face detection use a cascade?
-12. (System-design framing) Design an ensemble for credit-card fraud detection
+
+14. Stacking vs blending — precise difference.
+    
+16. Why use predicted probabilities instead of hard labels as meta-features?
+    
+18. Why is stacking common in Kaggle but rare in production?
+
+20. Describe cascading. When is it preferred, and how does it control cost/latency?
+    
+22. 🔍 (Rare/CV roles) How does Viola–Jones face detection use a cascade?
+
+    
+24. (System-design framing) Design an ensemble for credit-card fraud detection
     with a human-in-the-loop — this is how cascading actually gets asked.
