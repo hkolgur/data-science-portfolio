@@ -478,6 +478,17 @@ never reach later models. (🔍 Trivia: Viola–Jones face detection is a cascad
 AdaBoost classifiers — CV-role material only.)
 
 ---
+---
+## Ensemble Architectures: Homogenous vs. Heterogenous
+
+| Technique | Base Model Type | How Diversity is Created | Main Goal |
+| :--- | :--- | :--- | :--- |
+| **Bagging** | **Homogenous** (e.g., All Deep Trees) | Resampling data via bootstrapping | Reduce Variance |
+| **Boosting** | **Homogenous** (e.g., All Shallow Trees) | Sequential sample weighting | Reduce Bias |
+| **Voting / Stacking** | **Heterogenous** (e.g., Tree + SVM + NN) | Mixing different algorithmic biases | Maximize Robustness |
+| **Cascading** | **Heterogenous or Homogenous** | Sequential filtering (passing complex cases down the line) | Maximize Efficiency / Reduce Cost |
+
+---
 
 ## 6. Choosing an Ensemble — quick guide
 
