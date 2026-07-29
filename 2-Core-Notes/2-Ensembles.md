@@ -490,21 +490,20 @@ AdaBoost classifiers — CV-role material only.)
 
 ---
 
-## 6. Choosing an Ensemble — quick guide
+## Choosing an Ensemble — Quick Guide
 
-| Situation | Use |
-|---|---|
-| Single tree overfits (high variance) | **Bagging / Random Forest** |
-| Model underfits, need accuracy (bias problem) | **Boosting (GBDT/XGBoost)** |
-| Several strong-but-different models available; competition setting | **Stacking** |
-| Mistakes are very costly; need high-confidence decisions | **Cascading** |
-| Need parallel/fast training | Bagging (boosting stages are sequential) |
-| Noisy / mislabeled data | **Bagging** (boosting chases the noise) |
-| Small dataset | Neither — a single regularized model or simple bagging; boosting overfits fast |
-| Truly linear relationship | Neither — linear/ridge/LASSO |
-| Interpretability is a hard requirement | Single tree or linear model; if you must ensemble, add PDP/SHAP |
-| Low tuning budget | **Random Forest** (good defaults); GBDT needs real tuning |
-
+| Situation | Use | Key Interview Justification |
+| :--- | :--- | :--- |
+| **Single tree overfits** (high variance) | **Bagging / Random Forest** | Averages independent errors to smooth out overfitting. |
+| **Model underfits**, need accuracy (bias problem) | **Boosting (GBDT/XGBoost)** | Sequentially learns from past errors to build a complex boundary. |
+| **Several strong-but-different models** available; competition setting | **Stacking** | Combines entirely different algorithmic biases to squeeze out maximum accuracy. |
+| **Mistakes are very costly**; need high-confidence decisions | **Cascading** | Acts as a risk-management gate, routing high-uncertainty cases to heavier models or human auditors. |
+| **Need parallel / fast training** | **Bagging** | Bootstrap samples are independent, allowing base models to train simultaneously. |
+| **Noisy / mislabeled data** | **Bagging** | Averaging drowns out noise. Boosting destroys itself here by aggressively chasing and over-weighting outliers. |
+| **Small dataset** | **Bagging or Simple Regularized Model** | Bootstrapping simulates multiple data populations without collecting expensive new real-world data. (Avoid Boosting). |
+| **Truly linear relationship** | **Neither** | Stick to linear/Ridge/LASSO. Ensembles add unneeded complexity and lose structural transparency. |
+| **Interpretability is a hard requirement** | **Single Tree / Linear Model** | If you *must* ensemble for accuracy, use **SHAP** or **PDP** values to explain the black-box predictions to stakeholders. |
+| **Low tuning budget** | **Random Forest** | Out-of-the-box defaults are incredibly robust. GBDT requires heavy hyperparameter tuning to avoid overfitting. |
 ---
 
 ## 7. Frequently Asked Interview Questions
