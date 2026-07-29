@@ -146,6 +146,22 @@ Avoid using the default feature_importances_ (MDI) from Scikit-Learn for anythin
 
 Instead, run Permutation Importance on a held-out validation set. Shuffling the data points on unseen data gives an honest, unbiased global ranking of what the model actually relies on to generalize.
 
+## Permutation Importance on Held-Out Data
+
+### 1. Step-by-Step Algorithm
+1. Calculate baseline metric (e.g., AUC = 0.85) on an unseen validation set.
+2. For each feature:
+   * Randomly shuffle (permute) only that feature's column.
+   * Pass the altered dataset through the trained model.
+   * Calculate the new validation metric (e.g., AUC drops to 0.60).
+   * Feature Importance = Baseline Score - New Score (0.85 - 0.60 = 0.25).
+3. Reset column and repeat for the next feature.
+
+### 2. Why it is Superior to Default Gini / MDI
+* **No Overfitting Reward:** Evaluated on unseen data, meaning it measures real predictive power, not training data memorization.
+* **No Cardinality Bias:** Does not artificially favor continuous or high-cardinality numbers just because they have more split points.
+
+
 To explain a specific model decision to a stakeholder or an auditor—for instance, exactly why a customer was denied a credit card—I use SHAP
 
 
