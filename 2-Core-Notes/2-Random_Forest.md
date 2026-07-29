@@ -141,16 +141,21 @@ Effect: **faster training** (no threshold search), **lower variance**, slightly
 ## 8. Practical Considerations
 
 ### Feature importance — the three flavors (know the differences) ⭐
+How do you know which features your model actually cares about?
+Avoid using the default feature_importances_ (MDI) from Scikit-Learn for anything that impacts business decisions, because it is heavily biased toward high-cardinality and continuous variables, and it ignores overfitting.
 
-| Method | How it works | Watch out for |
-|---|---|---|
-| **Impurity / Gini ("MDI")** — sklearn's `feature_importances_` | Average impurity decrease each feature produces, over all trees | **Biased toward high-cardinality and continuous features** (more split points = more chances to look good). Computed on *training* data, so it can reward overfitting. |
-| **Permutation importance** | Shuffle one column, measure the drop in validation score | Slower; **splits credit unpredictably among correlated features** — two duplicate columns can both look useless because shuffling one leaves the other intact |
-| **SHAP** | Game-theoretic per-prediction attribution | Slowest, but gives **per-row** explanations, not just a global ranking |
+Instead, run Permutation Importance on a held-out validation set. Shuffling the data points on unseen data gives an honest, unbiased global ranking of what the model actually relies on to generalize.
 
-**Default answer:** don't trust impurity importance for anything that matters —
-use permutation importance on a **held-out set**, and SHAP when you need to
-explain individual predictions to a stakeholder.
+To explain a specific model decision to a stakeholder or an auditor—for instance, exactly why a customer was denied a credit card—I use SHAP
+
+
+## The Three Flavors of Feature Importance
+
+| Method | How it works | Critical Defect | Best Use Case |
+| :--- | :--- | :--- | :--- |
+| **MDI / Impurity** (`sklearn` default) | Tracks average impurity decrease during tree training splits. | **Highly biased** toward continuous/high-cardinality features. Rewards overfitting. | Never trust for real business decisions; use only for fast, dirty sanity checks. |
+| **Permutation Importance** | Shuffles one column's rows on validation data; measures drop in accuracy. | Can split/hide credit unpredictably between highly correlated features. | **Default choice** for finding a true, unbiased global ranking of feature power. |
+| **SHAP** | Uses game theory to calculate per-prediction feature attribution. | Exceptionally slow and computationally expensive to calculate. | Mandatory when you need **per-row transparency** for stakeholders or risk auditors. |
 
 **The correlated-features trap** (very common follow-up): with two highly
 correlated features, RF splits on them roughly at random across trees, so *each*
