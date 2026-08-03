@@ -86,7 +86,8 @@ serve as a **free validation set**:
 - Aggregate → **OOB score** ≈ cross-validation accuracy, with **no extra data
   split and no extra training**
 - In sklearn: `oob_score=True`
-
+- If checking independently no need of k-fklod. But if we compare algorithms performance with multiple we may need to keep same folds in each algorithm. In such case turn off the OOB so it will save computation time and K-fold can be used.
+  
 **Why it's a valid estimate:** a point is predicted only by trees that never saw
 it, which is exactly the condition a validation set satisfies. So OOB gives a
 nearly unbiased estimate of generalization error essentially for free — the
