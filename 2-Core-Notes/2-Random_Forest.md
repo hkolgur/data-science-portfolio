@@ -161,10 +161,21 @@ Instead, run Permutation Importance on a held-out validation set. Shuffling the 
 ### 2. Why it is Superior to Default Gini / MDI
 * **No Overfitting Reward:** Evaluated on unseen data, meaning it measures real predictive power, not training data memorization.
 * **No Cardinality Bias:** Does not artificially favor continuous or high-cardinality numbers just because they have more split points.
+### Key Advantages:
+   ** Model Agnostic: It works on any machine learning model, from simple linear regressions to complex neural networks
+   ** Intuitive Metrics: The importance is expressed directly in terms of performance drops 
+* Main Limitations:
+   ** Correlated Features: If two features are highly correlated, shuffling one might not drop performance much because the model can rely on the
+      other. This can artificially lower the importance of both features.
+   ** Computationally Heavy: You must run the prediction loop for every single feature, which takes time on massive datasets
+* Best ways to detect co-relation and bypass this trap:
+   ** 1. Detect with a Spearman Rank Correlation Matrix: Before trusting any importance score, calculate a correlation matrix on your features.             Using Spearman rank correlation is preferred over Pearson because it captures non-linear, monotonic relationships that tree models exploit.          Group features together if their correlation magnitude is high (e.g., above 0.7 or 0.8).
+   ** 2.Grouped Permutation Importance: Instead of shuffling one feature at a time, shuffle entire groups of highly correlated features
+        simultaneously.
+   ** 3. Hierarchical Clustering on Features.cluster features based on their correlations and keep only one representative feature from each cluster
 
 
 To explain a specific model decision to a stakeholder or an auditor—for instance, exactly why a customer was denied a credit card—I use SHAP
-
 
 ## The Three Flavors of Feature Importance
 
