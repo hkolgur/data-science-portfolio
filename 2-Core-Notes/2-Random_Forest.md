@@ -168,10 +168,10 @@ Instead, run Permutation Importance on a held-out validation set. Shuffling the 
    1. Correlated Features: If two features are highly correlated, shuffling one might not drop performance much because the model can rely        on the other. This can artificially lower the importance of both features.
    2. Computationally Heavy: You must run the prediction loop for every single feature, which takes time on massive datasets
 ### Best ways to detect co-relation and bypass this trap:
-   ** 1. Detect with a Spearman Rank Correlation Matrix: Before trusting any importance score, calculate a correlation matrix on your features.             Using Spearman rank correlation is preferred over Pearson because it captures non-linear, monotonic relationships that tree models exploit.          Group features together if their correlation magnitude is high (e.g., above 0.7 or 0.8).
-   ** 2.Grouped Permutation Importance: Instead of shuffling one feature at a time, shuffle entire groups of highly correlated features
-        simultaneously.
-   ** 3. Hierarchical Clustering on Features.cluster features based on their correlations and keep only one representative feature from each cluster
+   1. Detect with a Spearman Rank Correlation Matrix: Before trusting any importance score, calculate a correlation matrix on your                features.Using Spearman rank correlation is preferred over Pearson because it captures non-linear, monotonic relationships that tree        models exploit. Group features together if their correlation magnitude is high (e.g., above 0.7 or 0.8).
+   2. Grouped Permutation Importance: Instead of shuffling one feature at a time, shuffle entire groups of highly correlated features
+      simultaneously.
+   3. Hierarchical Clustering on Features.cluster features based on their correlations and keep only one representative feature from each.        cluster
 
 
 To explain a specific model decision to a stakeholder or an auditor—for instance, exactly why a customer was denied a credit card—I use SHAP
