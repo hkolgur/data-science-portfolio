@@ -178,17 +178,21 @@ Instead, run Permutation Importance on a held-out validation set. Shuffling the 
 To explain a specific model decision to a stakeholder or an auditor—for instance, exactly why a customer was denied a credit card—I use SHAP
 
 ### SHAP (SHapley Additive exPlanations)Foundation: 
-1. Cooperative Game Theory.Features are "players" allocating a fair share of the prediction "payout.
-2. "Mechanism: Computes the marginal contribution of a feature across all possible feature subsets (coalitions).
-3. Pros: Highly rigorous. Guarantees consistency and local-to-global mathematical fairness.
-4. Cons: Computationally expensive due to the factorial combination of features.
-
+#### The Core Mechanism:
+- To find the true impact of a single feature (e.g., Age):
+  1. Create Combinations: SHAP generates all possible subsets (coalitions) of the other features in your dataset.
+  2. Test Predictions: It calculates the model's prediction for each subset with the feature and without the feature.
+  3. Calculate Marginal Contribution: It subtracts the prediction without the feature from the prediction with the feature to see the marginal difference.
+  4. Weighted Average: It averages these differences across all combinations.
 ### LIME (Local Interpretable Model-agnostic Explanations)
-1. Foundation: Local linear approximation.
-2. Mechanism: Takes a single data point, perturbs it to create a fake local dataset, gets predictions from the black-box model, weights them by proximity, and fits a simple linear regression over that local space.
-3. Pros: Extremely fast and highly flexible across tabular, text, and image data.
-4. Cons: Heuristic-based. Can yield unstable or slightly different results across identical runs.
-
+#### The Core Mechanism:
+- To explain a single prediction (e.g., Why was this specific loan rejected?):
+  1. Select the Point: Pick the specific instance you want to explain.
+  2. Permute Data: LIME creates a brand-new, fake dataset by making slight variations (mutations) to that original data point.
+  3. Get Predictions: It passes these fake points through the black-box model to get predictions.
+  4. Weight by Proximity: It assigns a higher weight to fake points that are very close to the original point, and lower weights to points far away.
+  5. Fit a Simple Model: It trains a simple, inherently interpretable model (like a linear regression or a shallow decision tree) on this weighted, fake dataset.
+  6. Extract Weights: The coefficients of that simple model become the local explanation.
 ## The Three Flavors of Feature Importance
 
 | Method | How it works | Critical Defect | Best Use Case |
