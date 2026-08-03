@@ -186,13 +186,13 @@ To explain a specific model decision to a stakeholder or an auditor—for instan
   4. Weighted Average: It averages these differences across all combinations.
 ### LIME (Local Interpretable Model-agnostic Explanations)
 #### The Core Mechanism:
-- To explain a single prediction (e.g., Why was this specific loan rejected?):
-  1. Select the Point: Pick the specific instance you want to explain.
-  2. Permute Data: LIME creates a brand-new, fake dataset by making slight variations (mutations) to that original data point.
-  3. Get Predictions: It passes these fake points through the black-box model to get predictions.
-  4. Weight by Proximity: It assigns a higher weight to fake points that are very close to the original point, and lower weights to points far away.
-  5. Fit a Simple Model: It trains a simple, inherently interpretable model (like a linear regression or a shallow decision tree) on this weighted, fake dataset.
-  6. Extract Weights: The coefficients of that simple model become the local explanation.
+- To explain a single prediction (e.g., Why was this specific loan rejected for customer A1?):
+  1. Select the Point: Pick the specific instance you want to explain.LIME locks onto Member A1's exact feature values (e.g., Credit Score = 580, Income = $45,000, Debt = $20,000)
+  2. Permute Data: It creates thousands of fake rows (usually 5,000) by adding random noise to Member A1’s values. These fake members look very similar to A1, but with minor tweaks.
+  3. Get Predictions: It runs all 5,000 fake profiles through your trained loan model to see who gets approved or rejected.
+  4. Weight by Proximity: It assigns a higher weight to fake points that are very close to the original point, and lower weights to points far away.It measures how close each fake profile is to Member A1. A fake profile with a 581 credit score gets a massive weight; a fake profile with a 700 credit score gets almost zero weight.
+  5. Fit White-Box Model: It trains a simple, weighted Linear Regression on these 5,000 rows. The resulting regression coefficients explain exactly what pushed Member A1 over the line into a rejection..
+  6. Extract Weights: The coefficients of this model become the local explanation.
 ## The Three Flavors of Feature Importance
 
 | Method | How it works | Critical Defect | Best Use Case |
