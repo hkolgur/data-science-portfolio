@@ -310,7 +310,7 @@ systems engineering** (it borrows RF's sampling ideas):
 | | **XGBoost** (2014) | **LightGBM** (Microsoft, 2016) | **CatBoost** (Yandex, 2017) |
 |---|---|---|---|
 | Tree growth | **Level/depth-wise** — grows whole levels; different conditions per node | **Leaf-wise** — repeatedly split the single leaf with max gain → asymmetric trees | **Symmetric (oblivious)** — same split condition for all nodes at a level |
-| Categorical features | Encode manually (one-hot/target); newer versions have experimental native support | Native — bin/bucket-based grouping of categories | Native — **Ordered Target Encoding** (leakage-safe); `one_hot_max_size` controls small categories |
+| Categorical features | Native Categorical Support: Enable enable_categorical=True in XGBoost to handle categorical data types automatically without manual encoding.Encode manually (one-hot/target) | Native — bin/bucket-based grouping of categories | Native — **Ordered Target Encoding** (leakage-safe); `one_hot_max_size` controls small categories |
 | Sampling | Row/column subsample (without replacement) | **GOSS** — Gradient-based One-Side Sampling | Minimal-variance / uniform sampling; 🔍 Ordered Boosting (internals rarely asked) |
 | Speed tricks | Histogram, parallel split search | Histogram **binning**, **EFB** (Exclusive Feature Bundling) | Symmetric trees → very fast inference; strong GPU support |
 | When to pick | Max control/tuning, community support, robust all-rounder | **Speed** on large data; good results with little tuning | **Many categorical features**; large data; GPU |
