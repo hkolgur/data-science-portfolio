@@ -48,22 +48,46 @@ margin γ > 0, the boosted combination is a **universal function approximator**.
 ## 2. GBDT by Hand — Regression Walkthrough
 *(the StatQuest-style example: predicting weight)*
 
-1. **F0 = mean of target.** With squared loss, the constant minimizing the loss
-   is the mean (e.g. every person's predicted weight starts at 171.8).
-2. **Compute residuals:** ri = yi − F0(xi) (e.g. 88 − 171.8 = −83.8, …).
-3. **Fit tree h1 on {xi, ri}** — features predict the residuals, not y.
-   The tree is **shallow**, so there are usually fewer leaves than data points →
-   **several residuals land in the same leaf. The leaf's output is their average.**
-   (This is the squared-loss case of the "line search" in Friedman's algorithm
-   below: the constant minimizing squared error in a leaf *is* the mean.)
-4. **Update with learning rate:** F1(x) = F0(x) + 0.1·h1(x)
-   (prediction 171.8 moves a *small step* toward the truth, e.g. +0.1×3.5).
-5. **Repeat:** new residuals yi − F1(xi) are smaller; fit h2 on them; continue
-   for M trees.
-6. **Predict:** F0 + ν·(h1 + h2 + … + hM).
+# Gradient Boosted Decision Trees (GBDT) Walkthrough Notes
 
-Small steps (ν≈0.1) with many trees generalize far better than one big jump —
-this is the whole point of shrinkage.
+### 1. Updated Master GBDT Walkthrough Table
+* **Actual Targets**: Person 1 = 170 lbs, Person 2 = 190 lbs
+* **Initial Baseline ($F_0$)**: $\frac{170 + 190}{2} = 180.0$ lbs
+* **Learning Rate ($\nu$)**: 0.1
+* **Loss Function**: Squared Error Loss = $\frac{1}{2}(\text{Actual} - \text{Predicted})^2$
+
+| Stage | Action / Step | Person | Model Inputs (Features) | Current Prediction ($F$) | Target to Predict (Residual) | How Target was Formed | Tree Output | Learning Rate ($\nu$) | Prediction Update Formula | New Prediction | Stage Loss $\frac{1}{2}(y - F)^2$ | Total Stage Loss |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **0** | **Initialize Baseline** | **P1**<br>**P2** | None *(Global Mean)* | --<br>-- | **170**<br>**190** | Raw Target Weights | --<br>-- | -- | $F_0 = \text{mean}(y)$ | **180.0**<br>**180.0** | 50.00<br>50.00 | **100.00** |
+| **1** | **Train & Run Tree 1** | **P1**<br>**P2** | Age: 25, Sex: M<br>Age: 45, Sex: F | 180.0<br>180.0 | **-10.0**<br>**+10.0** | $\text{Actual} - F_0$ | **-10.0**<br>**+10.0** | **0.1** | $F_1 = F_0 + (\nu \times \text{Tree}_1)$ | **179.0**<br>**181.0** | 40.50<br>40.50 | **81.00** |
+| **2** | **Train & Run Tree 2** | **P1**<br>**P2** | Age: 25, Sex: M<br>Age: 45, Sex: F | 179.0<br>181.0 | **-9.0**<br>**+9.0** | $\text{Actual} - F_1$ | **-9.0**<br>**+9.0** | **0.1** | $F_2 = F_1 + (\nu \times \text{Tree}_2)$ | **178.1**<br>**181.9** | 32.81<br>32.81 | **65.61** |
+| **3** | **Train & Run Tree 3** | **P1**<br>**P2** | Age: 25, Sex: M<br>Age: 45, Sex: F | 178.1<br>181.9 | **-8.1**<br>**+8.1** | $\text{Actual} - F_2$ | **-8.1**<br>**+8.1** | **0.1** | $F_3 = F_2 + (\nu \times \text{Tree}_3)$ | **177.29**<br>**182.71** | 26.57<br>26.57 | **53.14** |
+
+---
+
+### 2. The Ensemble Equation Freezes
+Once stopping criteria are met (max trees reached, or early stopping rules trigger), training freezes into a permanent mathematical chain. 
+
+For the 3-stage model above, the frozen production formula is:
+$$F_3(x) = F_0 + (\nu \times \text{Tree}_1(x)) + (\nu \times \text{Tree}_2(x)) + (\nu \times \text{Tree}_3(x))$$
+
+---
+
+### 3. Inference Example (Predicting on New Data)
+
+#### New Data Point:
+* **Person 3**: Age = 25, Sex = Male
+
+#### Execution Path Through the Frozen Chain:
+1. **Base Leaf ($F_0$)**: Everyone starts at the global mean $\rightarrow \mathbf{180.0}$
+2. **Tree 1 Evaluation**: Tree 1 sees `Age: 25` $\rightarrow$ Routes to left leaf $\rightarrow$ Outputs $\mathbf{-10.0}$
+3. **Tree 2 Evaluation**: Tree 2 sees `Age: 25` $\rightarrow$ Routes to left leaf $\rightarrow$ Outputs $\mathbf{-9.0}$
+4. **Tree 3 Evaluation**: Tree 3 sees `Age: 25` $\rightarrow$ Routes to left leaf $\rightarrow$ Outputs $\mathbf{-8.1}$
+
+#### Final Summation:
+$$F_3(\text{Person 3}) = 180.0 + (0.1 \times -10.0) + (0.1 \times -9.0) + (0.1 \times -8.1)$$
+$$F_3(\text{Person 3}) = 180.0 - 1.0 - 0.9 - 0.81$$
+$$\text{Final Prediction} = \mathbf{177.29 \text{ lbs}}$$
 
 ---
 
