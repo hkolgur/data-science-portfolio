@@ -177,14 +177,14 @@ Instead, run Permutation Importance on a held-out validation set. Shuffling the 
 
 To explain a specific model decision to a stakeholder or an auditor—for instance, exactly why a customer was denied a credit card—I use SHAP
 
-### SHAP (SHapley Additive exPlanations)Foundation: 
+### SHAP (SHapley Additive exPlanations)Foundation: Use SHAP when you need a definitive, mathematically fair accounting of your features (e.g., auditing for regulatory compliance or bias)
 #### The Core Mechanism:
 - To find the true impact of a single feature (e.g., Age):
   1. Create Combinations: SHAP generates all possible subsets (coalitions) of the other features in your dataset.
   2. Test Predictions: It calculates the model's prediction for each subset with the feature and without the feature.
   3. Calculate Marginal Contribution: It subtracts the prediction without the feature from the prediction with the feature to see the marginal difference.
   4. Weighted Average: It averages these differences across all combinations.
-### LIME (Local Interpretable Model-agnostic Explanations)
+### LIME (Local Interpretable Model-agnostic Explanations)-Use LIME when you need fast, real-time explanations embedded in an application interface where exact global consistency is less critical than speed.
 #### The Core Mechanism:
 - To explain a single prediction (e.g., Why was this specific loan rejected for customer A1?):
   1. Select the Point: Pick the specific instance you want to explain.LIME locks onto Member A1's exact feature values (e.g., Credit Score = 580, Income = $45,000, Debt = $20,000)
