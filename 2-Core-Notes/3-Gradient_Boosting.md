@@ -86,13 +86,16 @@ Because decision trees rely on binary rules (like `Age < 35`), data points are r
 * **Age 30** triggers a chain of downward micro-corrections because it shares a feature space with the lighter individual from training data.
 * **Age 36** triggers an upward chain of corrections because it falls into the bucket representing the heavier training individual.
 
--What happens if there is one more feature height?
+* What happens if there is one more feature height?
   A. Interaction via the Boosting Chain (Across Stages)
+  
       1. Stage 1 (Tree 1): Splits on Age < 35 to predict the bulk of the error.
       2. Stage 2 (Tree 2): Receives the updated residuals and discovers that splitting on Height < 69 now provides the best error reduction.
   B.  Interaction via Deeper Trees (Within the Same Stage)
+  
       1. Split 1: Age < 35
       2. Split 2 (Goes Deeper): If Yes, check Height < 69
+  
   The final leaf value is calculated based on the data points that satisfy both conditions
 
 ---
