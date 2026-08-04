@@ -330,15 +330,17 @@ systems engineering** (it borrows RF's sampling ideas):
    (deeper, asymmetric trees; cap `num_leaves`/depth to avoid overfitting)
 
 XGBoost tree looks:
+```text
                   [ Age > 30? ]
                  /             \
        [ Income > $50k? ]     [ Education == Degree? ]
        /              \       /                      \
    Leaf 1          Leaf 2   Leaf 3                 Leaf 4
-
+```
 LightGBM:
 Step 1: The Root Split.LightGBM finds the overall best initial split, just like any other tree.
 Step 2: Choosing the Best Leaf (Asymmetry Begins).LightGBM evaluates both Leaf 1 and Leaf 2. It finds that splitting Leaf 1 reduces variance/loss by a huge margin, while splitting Leaf 2 would barely help. It completely ignores Leaf 2 and splits only Leaf 1
+```text
                         [ Age > 30? ]
                        /             \
              [ Income > $50k? ]     Leaf 2 (Still untouched)
@@ -348,15 +350,16 @@ Step 2: Choosing the Best Leaf (Asymmetry Begins).LightGBM evaluates both Leaf 1
 Leaf 5                Leaf 6
 
 
-
+```
 CatBoost: Symmetric / Oblivious Tree 
+```text
                   Level 1: [ Age > 30? ]
                  /                      \
                 /                        \
        Level 2: [ Income > $50k? ]     Level 2: [ Income > $50k? ]
        /              \                 /              \
    Leaf 1          Leaf 2           Leaf 3          Leaf 4
-
+```
 Strict Balance: The tree is perfectly symmetrical. A tree of depth D always has exactly  2**D leaves
 ---
 
