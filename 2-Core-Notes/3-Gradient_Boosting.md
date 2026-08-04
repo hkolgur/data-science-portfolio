@@ -280,6 +280,11 @@ gradient boosting reads it off **gradients**.
 
 **XGBoost ≈ GBDT + row sampling + column sampling + heavy regularization +
 systems engineering** (it borrows RF's sampling ideas):
+### Visual Breakdown
+* **Step 1:** Starts with 1 root node.
+* **Step 2:** Splits the root into 2 nodes (Level 1 is full).
+* **Step 3:** Splits **both** nodes at the same time to create 4 nodes (Level 2 is full).
+* **Result:** The tree grows evenly and horizontally, layer by layer.
 
 - **Regularized objective:** loss + Ω(tree) where Ω = γ·(#leaves) + ½λ·Σ(leaf weights)²
 - 🔍 *Deep-dive:* uses **second-order Taylor expansion** (gradients *and*
@@ -297,7 +302,11 @@ systems engineering** (it borrows RF's sampling ideas):
 ---
 
 ## 8. XGBoost vs LightGBM vs CatBoost
-
+#### LightGBM (Leaf-Wise Growth)
+* **Step 2:** Splits the root into 2 nodes.
+* **Step 3:** Evaluates both nodes, finds that the left node has a much higher loss reduction, and **only** splits the left node. The right node is left alone.
+* **Result:** The tree grows vertically, unevenly, and deeply down the most impactful path.
+  
 | | **XGBoost** (2014) | **LightGBM** (Microsoft, 2016) | **CatBoost** (Yandex, 2017) |
 |---|---|---|---|
 | Tree growth | **Level/depth-wise** — grows whole levels; different conditions per node | **Leaf-wise** — repeatedly split the single leaf with max gain → asymmetric trees | **Symmetric (oblivious)** — same split condition for all nodes at a level |
