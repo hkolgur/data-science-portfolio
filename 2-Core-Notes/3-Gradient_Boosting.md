@@ -244,54 +244,14 @@ trees while Random Forest grows them fully.
 
 ## 6. AdaBoost (Adaptive Boosting)
 
-The original boosting algorithm — reweights **points** instead of fitting residuals.
+The original boosting algorithm (first of the list from boosting algorithms)— reweights **points** instead of fitting residuals.
 
-### The weighted training set (the mechanism)
-Normally every example counts equally: `error = Σ (1/N)·1[h(xᵢ) ≠ yᵢ]`.
-Boosting replaces the uniform 1/N with a **per-example weight w⁽ⁱ⁾**:
-
-```
-weighted error  ε = Σ w⁽ⁱ⁾ · 1[h(xᵢ) ≠ yᵢ]        (weights sum to 1)
-```
-
-Higher weight = higher cost of getting that point wrong = the next learner
-"tries harder" on it. This is how boosting *shifts focus* to hard examples —
-and that shifting focus is also what decorrelates consecutive learners.
-
-### The algorithm
-1. Initialize equal weights wi = 1/n (weights always sum to 1)
-2. Train a weak learner (a **stump**: root + 2 leaves); compute weighted error ε
-3. Compute the model's **"amount of say"**: α = ½·ln((1−ε)/ε)
-4. **Increase weights of misclassified points** (×e^α), decrease weights of
-   correct ones (×e^−α); renormalize to sum 1
-5. Next stump focuses on the hard (high-weight) points; repeat
-6. Final prediction = sign(Σ αm·hm(x)) — a **weighted** vote
-
-### Understanding α (know the shape of this curve)
-| ε (weighted error) | α | Meaning |
-|---|---|---|
-| → 0 (near-perfect stump) | → +∞ | Huge say in the final vote |
-| = 0.5 (coin flip) | **0** | No say at all — useless model, ignored |
-| > 0.5 (worse than chance) | **negative** | Its vote gets *flipped* — a consistently wrong classifier is still informative |
-
-α falls steeply as ε rises: it's ~2.2 at ε=0.01, ~1.1 at ε=0.1, ~0.2 at ε=0.4,
-and 0 at ε=0.5. So good stumps dominate the vote and mediocre ones fade out.
-
-> 📎 **Two conventions in the wild.** ESL's AdaBoost.M1 writes `α = ln((1−ε)/ε)`
-> without the ½; the exponential-loss derivation gives `α = ½·ln((1−ε)/ε)`.
-> They differ by a constant factor, and since the prediction is
-> `sign(Σ αm hm)`, scaling *all* α by 2 doesn't change a single prediction.
-> Use ½ (it's the derivation-correct one) and note the other exists if pushed.
-
-### Why renormalize the weights?
-Not cosmetic. A point the weak learners keep getting right has its weight
-multiplied by e^(−α) every round → it **underflows toward zero**. A point they
-keep getting wrong blows up. After enough iterations that's numerical
-instability. Renormalizing to sum to 1 each round keeps the weights a proper
-distribution and the arithmetic well-scaled.
-
-Classic application: **face detection (Viola–Jones)** in computer vision,
-combined with a cascade.
+* The Core MechanismSequential Training:
+  1. It trains models one after another, not in parallel.Instance
+  2. Weighting: It assigns weights to every data point.
+  3. Error Correction: Misclassified points get higher weights for the next round.
+  4. Model Weighting: Accurately performing stumps get a higher say in the final vote.
+  5. Final Voting: It makes predictions using a weighted majority vote of all stumps.
 
 ### AdaBoost vs Gradient Boosting
 
