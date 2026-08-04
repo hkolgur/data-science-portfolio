@@ -77,7 +77,9 @@ Because decision trees rely on binary rules (like `Age < 35`), data points are r
 | **Ensemble Equation** | $180.0 + (0.1 \times -10.0) + (0.1 \times -9.0) + (0.1 \times -8.1)$ | $180.0 + (0.1 \times +10.0) + (0.1 \times +9.0) + (0.1 \times +8.1)$ |
 | **Summation Step** | $180.0 - 1.0 - 0.9 - 0.81$ | $180.0 + 1.0 + 0.9 + 0.81$ |
 | **Final Production Prediction** | **`177.29 lbs`** | **`182.71 lbs`** |
+
 -Where the Split Value Comes From? ->The number 35 did not appear out of thin air. It was chosen mathematically by the very first decision tree because it was the point that split our training data into two distinct groups. 
+
 - Person 1: Age 25 (Target Residual = -10)
 - Person 2: Age 45 (Target Residual = +10)
 #### Crucial Note on Tree Behavior:
