@@ -50,7 +50,7 @@ margin γ > 0, the boosted combination is a **universal function approximator**.
 
 # Gradient Boosted Decision Trees (GBDT) Walkthrough Notes
 
-### 1. Updated Master GBDT Walkthrough Table
+### 1. GBDT Walkthrough Table
 * **Actual Targets**: Person 1 = 170 lbs, Person 2 = 190 lbs
 * **Initial Baseline ($F_0$)**: $\frac{170 + 190}{2} = 180.0$ lbs
 * **Learning Rate ($\nu$)**: 0.1
@@ -62,6 +62,25 @@ margin γ > 0, the boosted combination is a **universal function approximator**.
 | **1** | **Train & Run Tree 1** | **P1**<br>**P2** | Age: 25, Sex: M<br>Age: 45, Sex: F | 180.0<br>180.0 | **-10.0**<br>**+10.0** | $\text{Actual} - F_0$ | **-10.0**<br>**+10.0** | **0.1** | $F_1 = F_0 + (\nu \times \text{Tree}_1)$ | **179.0**<br>**181.0** | 40.50<br>40.50 | **81.00** |
 | **2** | **Train & Run Tree 2** | **P1**<br>**P2** | Age: 25, Sex: M<br>Age: 45, Sex: F | 179.0<br>181.0 | **-9.0**<br>**+9.0** | $\text{Actual} - F_1$ | **-9.0**<br>**+9.0** | **0.1** | $F_2 = F_1 + (\nu \times \text{Tree}_2)$ | **178.1**<br>**181.9** | 32.81<br>32.81 | **65.61** |
 | **3** | **Train & Run Tree 3** | **P1**<br>**P2** | Age: 25, Sex: M<br>Age: 45, Sex: F | 178.1<br>181.9 | **-8.1**<br>**+8.1** | $\text{Actual} - F_2$ | **-8.1**<br>**+8.1** | **0.1** | $F_3 = F_2 + (\nu \times \text{Tree}_3)$ | **177.29**<br>**182.71** | 26.57<br>26.57 | **53.14** |
+
+### 2. GBDT Prod live Test points of Age 30 vs Age 36  prediction:
+
+Because decision trees rely on binary rules (like `Age < 35`), data points are routed into discrete buckets. This means any age within a specific bucket gets the exact same tree output.
+
+| Step / Parameter | Scenario A: Age 30 (Male) | Scenario B: Age 36 (Female/Male) |
+| :--- | :--- | :--- |
+| **Split Condition Checked**| Is $30 < 35$? **Yes** (Go Left) | Is $36 < 35$? **No** (Go Right) |
+| **Base Leaf ($F_0$)** | `180.0` | `180.0` |
+| **Tree 1 Output** | `-10.0` | `+10.0` |
+| **Tree 2 Output** | `-9.0` | `+9.0` |
+| **Tree 3 Output** | `-8.1` | `+8.1` |
+| **Ensemble Equation** | $180.0 + (0.1 \times -10.0) + (0.1 \times -9.0) + (0.1 \times -8.1)$ | $180.0 + (0.1 \times +10.0) + (0.1 \times +9.0) + (0.1 \times +8.1)$ |
+| **Summation Step** | $180.0 - 1.0 - 0.9 - 0.81$ | $180.0 + 1.0 + 0.9 + 0.81$ |
+| **Final Production Prediction** | **`177.29 lbs`** | **`182.71 lbs`** |
+
+#### Crucial Note on Tree Behavior:
+* **Age 30** triggers a chain of downward micro-corrections because it shares a feature space with the lighter individual from training data.
+* **Age 36** triggers an upward chain of corrections because it falls into the bucket representing the heavier training individual.
 
 ---
 
