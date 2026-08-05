@@ -462,18 +462,18 @@ During growth, CatBoost automatically combines categorical features on the fly. 
 | | **Noisy / mislabeled data** → prefer bagging |
 | | **Heavy class imbalance** → adjust `scale_pos_weight` / class weights first |
 
-> ⚠️ **Correct this before an interview:** one slide lists "robustness to noise"
-> as a *reason to use* boosting. That is backwards, and the same deck contradicts
-> it two slides later ("can overemphasize outliers"). **Bagging is the
-> noise-robust one** (averaging cancels noise); **boosting is noise-sensitive**
-> because re-weighting/residual-fitting makes it chase mislabeled points
-> relentlessly. This is a classic exam question — get the direction right.
->
-> ⚠️ Also treat "handles missing data / categorical features natively" with care.
-> That's **XGBoost** (default direction per split for missing) and **LightGBM /
-> CatBoost** (native categoricals). Vanilla `sklearn.GradientBoosting` does
-> neither — say *which library* you mean.
+** Bagging is the noise-robust one** (averaging cancels noise);
+** Boosting is noise-sensitive**
 
+** Missing data:
+- GBDT: Missing data: Requires preprocessing like SimpleImputer/ OneHotEncoder or OrdinalEncoder
+  
+- XGBoost: Handles natively. Learns a default split direction (left or right) for missing values during training.Categorical features:
+           Experimental/native support available via enable_categorical=True, partitioning categories into specialized splits
+
+- LightGBM: Missing data: Handles natively. Assigns missing values to whichever side reduces loss the most during a split.Categorical
+            features: Excellent native handling. Sorts categorical values according to training targets to find optimal splits without
+            onehot encoding.
 ---
 
 # Data Science Interview Prep: Tree-Based Ensembles & Boosting
