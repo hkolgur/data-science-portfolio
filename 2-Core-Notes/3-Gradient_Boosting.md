@@ -344,7 +344,7 @@ LightGBM converts continuous features into discrete bins to drastically speed up
 
 ### Why Ranges (e.g., 60k–80k) Are Not Used in a Single Node
 
-* **Binary Efficiency**: Decision trees rely on rapid two-way splits. A range requires a slower three-way split.
+* **Binary Efficiency**: Decision trees rely on rapid two-way splits. A range requires a slower three-way split.(below ,inbetween, greater)
 * **Isolating Ranges Requires Depth**: To target a specific range, LightGBM uses **two sequential binary splits**:
   * **Split 1**: `Income ≤ $80,000` (Filters out everyone above 80k).
   * **Split 2 (on Left Child)**: `Income ≤ $60,000`. 
