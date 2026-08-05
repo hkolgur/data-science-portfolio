@@ -641,29 +641,40 @@ If Feature A (values: 0 or 1) and Feature B (values: 0 or 1) are never active at
     libraries parallelize instead?
 18. Train/test complexity of GBDT; why is it good for low-latency serving despite
     having M trees?
-19. Define a **weak learner** and a **strong learner**. What question did AdaBoost
+### GBDT Complexity Summary
+
+* **Training Complexity:** $\mathcal{O}(M \cdot K \cdot N \log N)$ (Classical) or $\mathcal{O}(M \cdot K \cdot B)$ (Modern Histogram-based). Highly dependent on data size.
+* **Inference Complexity:** $\mathcal{O}(M \cdot d)$ per sample. Independent of training data size ($N$).
+
+#### Why GBDTs meet low-latency SLAs (< 2ms):
+1. **Shallow Structures:** $d$ is kept intentionally small ($3$ to $6$).
+2. **Cheap Operations:** Uses basic CPU binary comparisons instead of matrix math.
+3. **Inference Parallelism:** Tree outputs can be computed simultaneously in parallel threads and summed.
+4. **Compilation Friendly:** Tools like Treelite convert trees into raw C++ logic for bare-metal execution.
+
+20. Define a **weak learner** and a **strong learner**. What question did AdaBoost
     answer, and why did it matter?
-20. What are the **three ingredients** any boosting algorithm needs?
-21. What is a **weighted training set**, and how does the weighted error rate
+21. What are the **three ingredients** any boosting algorithm needs?
+22. What is a **weighted training set**, and how does the weighted error rate
     differ from ordinary error?
-22. Sketch α as a function of weighted error. What is α when ε = 0.5? What if
+23. Sketch α as a function of weighted error. What is α when ε = 0.5? What if
     ε > 0.5?
-23. Why must AdaBoost **renormalize** the weights every round?
-24. In a GBDT tree, several residuals land in one leaf. What value does the leaf
+24. Why must AdaBoost **renormalize** the weights every round?
+25. In a GBDT tree, several residuals land in one leaf. What value does the leaf
     output, and why?
-25. **Is boosting robust to noisy labels?** (No — bagging is. Know why.)
-26. Which is more sensitive to outliers, bagging or boosting, and what's the
+26. **Is boosting robust to noisy labels?** (No — bagging is. Know why.)
+27. Which is more sensitive to outliers, bagging or boosting, and what's the
     mechanism?
-27. When would you pick Random Forest *over* a gradient booster?
-28. **How does gradient boosting work for classification?** What is F0, what
+28. When would you pick Random Forest *over* a gradient booster?
+29. **How does gradient boosting work for classification?** What is F0, what
     space do the trees live in, and how do you get a probability out?
-29. Are the trees in a gradient boosting *classifier* classification trees?
+30. Are the trees in a gradient boosting *classifier* classification trees?
     (No — regression trees, fit to `y − p` in log-odds space.)
-30. **How would you tune an XGBoost model?** In what order, and which parameter
+31. **How would you tune an XGBoost model?** In what order, and which parameter
     would you not tune by hand?
-31. Why does boosting use shallow trees while RF grows them fully? (Bias vs
+32. Why does boosting use shallow trees while RF grows them fully? (Bias vs
     variance, plus depth = maximum interaction order.)
-32. What happens to the number of trees needed if you halve the learning rate?
+33. What happens to the number of trees needed if you halve the learning rate?
 ### Core Decision Rules:
 * Use **LightGBM** if your dataset is massive (millions of rows) and training speed or low RAM usage is your main constraint.
 * Use **CatBoost** if your dataset is dominated by string/text categories and you want high out-of-the-box accuracy without manual tuning.
