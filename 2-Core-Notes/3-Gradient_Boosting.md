@@ -473,9 +473,11 @@ During growth, CatBoost automatically combines categorical features on the fly. 
 - XGBoost: Handles natively. Learns a default split direction (left or right) for missing values during training.Categorical features:
            Experimental/native support available via enable_categorical=True, partitioning categories into specialized splits
 
-
-          Sort the Non-Missing Values -> Test Direction A (Send all rows of Missing income Left),calculates the total gain (reduction in training loss) ->Test Direction B (Send all rows of Missing income Right),calculates the total gain (reduction in training loss) ->Choose the Maximum Gain
-  
+```text
+          Sort the Non-Missing Values -> Test Direction A (Send all rows of Missing income Left),
+          calculates the total gain/reduction in training loss) -->Test Direction B (Send all rows of Missing income Right),
+          calculates the total gain (reduction in training loss) -->Choose the Maximum Gain
+  ```
 - LightGBM: Handles natively. Assigns missing values to whichever side reduces loss the most during a split.Categorical
             features: Excellent native handling. Sorts categorical values according to training targets to find optimal splits without
             onehot encoding.
