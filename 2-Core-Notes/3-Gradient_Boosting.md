@@ -328,7 +328,38 @@ systems engineering** (it borrows RF's sampling ideas):
    rarely asked
 4. **Leaf-wise growth:** spend splits only where loss reduction is largest
    (deeper, asymmetric trees; cap `num_leaves`/depth to avoid overfitting)
+##  How Histogram Binning Works
 
+LightGBM converts continuous features into discrete bins to drastically speed up training. However, **tree splits remain strictly binary (`≤ Threshold`)**. A single node will never use an isolated range condition like `60k < Income < 80k`.
+
+### The Binning Workflow
+
+1. **Discretization**: Continuous values are assigned to integer bin IDs (typically 0 to 255).
+   * Bin 0: $0 – $20,000
+   * Bin 1: $20,001 – $40,000
+   * Bin 2: $40,001 – $60,000  <-- *Upper limit is $60k*
+   * Bin 3: $60,001 – $80,000
+2. **Boundary Selection**: The algorithm evaluates splits *between* bin boundaries. If the best split is between Bin 2 and Bin 3, the structural rule is stored as `Income Bin ≤ 2`.
+3. **Threshold Output**: For model evaluation and visualization, the bin ID is converted back to its physical numeric boundary: `Income ≤ $60,000`.
+
+### Why Ranges (e.g., 60k–80k) Are Not Used in a Single Node
+
+* **Binary Efficiency**: Decision trees rely on rapid two-way splits. A range requires a slower three-way split.
+* **Isolating Ranges Requires Depth**: To target a specific range, LightGBM uses **two sequential binary splits**:
+  * **Split 1**: `Income ≤ $80,000` (Filters out everyone above 80k).
+  * **Split 2 (on Left Child)**: `Income ≤ $60,000`. 
+  * The *Right Child* of Split 2 now perfectly isolates the `$60,000 to $80,000` bracket.
+
+---
+
+## Key Hyperparameters to Control Growth
+
+| Parameter | Default | Purpose |
+| :--- | :--- | :--- |
+| `num_leaves` | `31` | Max tree leaves. **Main control** for leaf-wise structure and model complexity. |
+| `max_depth` | `-1` (unlimited) | Limits explicit depth to prevent deeply nested, overfitted asymmetric branches. |
+| `min_data_in_leaf` | `20` | Minimum samples required in a leaf to allow a split. Prevents over-segmentation. |
+| `max_bin` | `255` | Max number of bins to bucket continuous features into. Lower values improve speed but lose precision. |
 XGBoost tree looks:
 ```text
                   [ Age > 30? ]
