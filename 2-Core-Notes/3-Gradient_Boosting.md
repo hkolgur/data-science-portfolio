@@ -428,7 +428,7 @@ During growth, CatBoost automatically combines categorical features on the fly. 
 | `grow_policy` | `SymmetricTree` | Can be changed to `Lossguide` (Leaf-wise like LightGBM) or `Depthwise` (like XGBoost) if you want to disable symmetric trees. |
 ---
 
-## 9. Practical: Advantages, Limitations, When to Use
+## 9. Practical: Advantages, Limitations, When to Use (GBDT's - XGBoost,LightGBM,CatBoost)
 
 ### Advantages
 - **Best-in-class accuracy on tabular data** — the default answer for structured
