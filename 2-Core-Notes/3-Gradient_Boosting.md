@@ -572,7 +572,7 @@ This guide covers the technical interview progression for regular Data Scientist
    High ν (0.3)  ────── Requires ──────> Low M (100 Trees)    [Fast, Prone to Overfit]
    ```
 7. Can gradient boosting overfit as you add trees? How do you detect and prevent
-   it? (Contrast with RF.)
+   it? (Contrast with RF.).Yes. Every new tree targets the remaining errors (residuals) of the entire ensemble.Early on, the trees capture broad, high-value patterns.Eventually, the overall training error gets close to zero.If you keep adding trees past this point, the new trees will chase tiny, random variations unique to the training rows.
 8. How does AdaBoost work: weight updates, amount of say α = ½ln((1−ε)/ε),
    final weighted vote. How does it relate to GB? (Exponential loss.)
 9. AdaBoost vs GBDT vs Random Forest — a three-way comparison.
