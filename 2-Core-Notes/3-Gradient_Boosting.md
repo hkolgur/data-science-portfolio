@@ -360,6 +360,8 @@ LightGBM converts continuous features into discrete bins to drastically speed up
 | `max_depth` | `-1` (unlimited) | Limits explicit depth to prevent deeply nested, overfitted asymmetric branches. |
 | `min_data_in_leaf` | `20` | Minimum samples required in a leaf to allow a split. Prevents over-segmentation. |
 | `max_bin` | `255` | Max number of bins to bucket continuous features into. Lower values improve speed but lose precision. |
+
+
 XGBoost tree looks:
 ```text
                   [ Age > 30? ]
