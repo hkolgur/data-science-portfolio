@@ -586,17 +586,17 @@ This guide covers the technical interview progression for regular Data Scientist
 11. How does XGBoost handle missing values at split time?
 12. Level-wise vs leaf-wise vs symmetric tree growth — which library does which,
     and the overfitting/speed implications of each.
-    # LightGBM Key Innovations: GOSS and EFB
+13. Explain GOSS and EFB. Why do they make LightGBM fast without hurting accuracy?
 
+### LightGBM Key Innovations: GOSS and EFB
 LightGBM achieves its massive speed and memory efficiency advantages over traditional GBDTs (like XGBoost) through two core techniques: **GOSS** (which optimizes row processing) and **EFB** (which optimizes column processing).
-
 ---
 
-## 1. GOSS (Gradient-based One-Side Sampling)
+### 1. GOSS (Gradient-based One-Side Sampling)
 * **Purpose:** Drastically reduces the number of **rows (data points)** evaluated at each split.
 * **Core Idea:** Data points with large gradients (high error) contribute more to information gain calculation. Rows with small gradients (low error) are already well-trained.
 
-### How it works:
+#### How it works:
 1. Sorts all training instances by the absolute value of their gradients.
 2. Keeps **100% of the top instances** with the largest gradients (e.g., top $a\%$).
 3. Takes a **random sample** from the remaining instances with small gradients (e.g., $b\%$ of the rest).
@@ -606,15 +606,15 @@ LightGBM achieves its massive speed and memory efficiency advantages over tradit
 
 ---
 
-## 2. EFB (Exclusive Feature Bundling)
+### 2. EFB (Exclusive Feature Bundling)
 * **Purpose:** Drastically reduces the number of **columns (features)** evaluated at each split.
 * **Core Idea:** High-dimensional data is often highly sparse. Mutually exclusive features (features that are rarely non-zero at the same time, like one-hot encoded vectors) can be safely bundled into a single feature without information loss.
 
-### How it works:
+#### How it works:
 1. **Greedy Bundling:** Uses a graph-coloring approach to group features that share minimal overlap/conflict into a small number of total bundles.
 2. **Value Merging (Offsetting):** Appends unique offsets to the feature values within a bundle so their values never collide.
 
-#### Practical Example:
+##### Practical Example:
 If Feature A (values: 0 or 1) and Feature B (values: 0 or 1) are never active at the same time:
 * EFB adds an offset of `1` to Feature B.
 * If Feature A = 1 $\rightarrow$ Bundle Value = `1`
@@ -625,14 +625,14 @@ If Feature A (values: 0 or 1) and Feature B (values: 0 or 1) are never active at
 
 ---
 
-## Summary Cheat Sheet
+### Summary Cheat Sheet
 
 | Innovation | Target | Computational Strategy |
 | :--- | :--- | :--- |
 | **GOSS** | **Rows** | Downsamples rows based on target gradients; retains high-error samples and randomly filters low-error samples. |
 | **EFB** | **Columns** | Compresses sparse, mutually exclusive features into compact, single-column bundles using offsets. |
 
-14. Explain GOSS and EFB. Why do they make LightGBM fast without hurting accuracy?
+
 15. What is CatBoost's ordered target encoding, and what leakage problem does it
     solve compared to naive target/response encoding?
 16. You have a dataset with 200 high-cardinality categorical columns — which
