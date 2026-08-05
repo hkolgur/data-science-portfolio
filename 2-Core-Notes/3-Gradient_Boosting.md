@@ -474,6 +474,7 @@ During growth, CatBoost automatically combines categorical features on the fly. 
 - LightGBM: Missing data: Handles natively. Assigns missing values to whichever side reduces loss the most during a split.Categorical
             features: Excellent native handling. Sorts categorical values according to training targets to find optimal splits without
             onehot encoding.
+- CatBoost Missing data: Handles natively with configurable strategies (e.g., treating them as the minimum or maximum value, or processing them as a separate split).Categorical features: Best-in-class native handling. Uses advanced target statistics and combinations of categorical features to preprocess them automatically during training
 ---
 
 # Data Science Interview Prep: Tree-Based Ensembles & Boosting
