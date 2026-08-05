@@ -468,15 +468,15 @@ During growth, CatBoost automatically combines categorical features on the fly. 
 ** Boosting is noise-sensitive**
 
 ** Missing data:
-- GBDT: Missing data: Requires preprocessing like SimpleImputer/ OneHotEncoder or OrdinalEncoder
+- GBDT and Adaboost: Cannot Handle Missing data: Requires preprocessing like SimpleImputer/ OneHotEncoder or OrdinalEncoder
   
 - XGBoost: Handles natively. Learns a default split direction (left or right) for missing values during training.Categorical features:
            Experimental/native support available via enable_categorical=True, partitioning categories into specialized splits
 
-- LightGBM: Missing data: Handles natively. Assigns missing values to whichever side reduces loss the most during a split.Categorical
+- LightGBM: Handles natively. Assigns missing values to whichever side reduces loss the most during a split.Categorical
             features: Excellent native handling. Sorts categorical values according to training targets to find optimal splits without
             onehot encoding.
-- CatBoost Missing data: Handles natively with configurable strategies (e.g., treating them as the minimum or maximum value, or processing them as a separate split).Categorical features: Best-in-class native handling. Uses advanced target statistics and combinations of categorical features to preprocess them automatically during training
+- CatBoost Handles natively with configurable strategies (e.g., treating them as the minimum or maximum value, or processing them as a separate split).Categorical features: Best-in-class native handling. Uses advanced target statistics and combinations of categorical features to preprocess them automatically during training
 ---
 
 # Data Science Interview Prep: Tree-Based Ensembles & Boosting
