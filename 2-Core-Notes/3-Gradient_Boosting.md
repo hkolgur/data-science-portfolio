@@ -396,10 +396,6 @@ Strict Balance: The tree is perfectly symmetrical. A tree of depth D always has 
 * **Extreme Execution Speed**: When making predictions on a CPU or GPU, the model doesn't need to evaluate different logic branches for different samples. It can evaluate the conditions `Income ≤ 75k`, `Age ≤ 35`, and `Education == 'Bachelor'` all at once using bitwise operations.
 * **Strong Regularization**: Because it forces the same split everywhere, it acts as a massive constraint. This heavily guards the model against overfitting, which is why CatBoost often requires very little hyperparameter tuning.
 
-### Why CatBoost Uses Symmetric Trees
-* **Extreme Execution Speed**: When making predictions on a CPU or GPU, the model doesn't need to evaluate different logic branches for different samples. It can evaluate the conditions `Income ≤ 75k`, `Age ≤ 35`, and `Education == 'Bachelor'` all at once using bitwise operations.
-* **Strong Regularization**: Because it forces the same split everywhere, it acts as a massive constraint. This heavily guards the model against overfitting, which is why CatBoost often requires very little hyperparameter tuning.
-
 ---
 
 ## Advanced Handling of Categorical Features (`Education`)
