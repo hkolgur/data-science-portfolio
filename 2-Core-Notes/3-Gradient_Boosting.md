@@ -641,27 +641,25 @@ If Feature A (values: 0 or 1) and Feature B (values: 0 or 1) are never active at
     libraries parallelize instead?
 18. Train/test complexity of GBDT; why is it good for low-latency serving despite
     having M trees?
-### GBDT Complexity Summary
+##### GBDT Complexity Summary
 
 * **Training Complexity:** $\mathcal{O}(M \cdot K \cdot N \log N)$ (Classical) or $\mathcal{O}(M \cdot K \cdot B)$ (Modern Histogram-based). Highly dependent on data size.
 * **Inference Complexity:** $\mathcal{O}(M \cdot d)$ per sample. Independent of training data size ($N$).
 
-#### Why GBDTs meet low-latency SLAs (< 2ms):
-1. **Shallow Structures:** $d$ is kept intentionally small ($3$ to $6$).
-2. **Cheap Operations:** Uses basic CPU binary comparisons instead of matrix math.
-3. **Inference Parallelism:** Tree outputs can be computed simultaneously in parallel threads and summed.
-4. **Compilation Friendly:** Tools like Treelite convert trees into raw C++ logic for bare-metal execution.
+###### Why GBDTs meet low-latency SLAs (< 2ms):
+  1. **Shallow Structures:** $d$ is kept intentionally small ($3$ to $6$).
+  2. **Cheap Operations:** Uses basic CPU binary comparisons instead of matrix math.
+  3. **Inference Parallelism:** Tree outputs can be computed simultaneously in parallel threads and summed.
+  4. **Compilation Friendly:** Tools like Treelite convert trees into raw C++ logic for bare-metal execution.
 
 20. Define a **weak learner** and a **strong learner**. What question did AdaBoost
-    answer, and why did it matter?
-21. What are the **three ingredients** any boosting algorithm needs?
+    answer, and why did it matter? (Base Model performs better than random model , Highly accurate model)
+21. What are the **three ingredients** any boosting algorithm needs? (Loss function, weak learner, Additive model)
 22. What is a **weighted training set**, and how does the weighted error rate
     differ from ordinary error?
-23. Sketch α as a function of weighted error. What is α when ε = 0.5? What if
-    ε > 0.5?
-24. Why must AdaBoost **renormalize** the weights every round?
+24. Why must AdaBoost **renormalize** the weights every round? a. As the model increases weight every round for miscalssified points, after few round the values may explode hence we need re-normalization. same for shrinking values .b. To keep error in range 0-1
 25. In a GBDT tree, several residuals land in one leaf. What value does the leaf
-    output, and why?
+    output, and why? The leaf output value depends entirely on the loss function being optimized and the regularization settings. In all cases, the tree cannot output custom values per row, so it calculates a single aggregated value that minimizes the total structural loss for the group of residuals trapped in that leaf. For Regression: mean (average) of the residuals in that leaf. Classification (Log-Loss)log-odds transformation sum(Residuals) / sum(p(1-p)).Modern GBDTs (XGBoost/LightGBM): sum(residuals)/sum(hessians) + lambda .
 26. **Is boosting robust to noisy labels?** (No — bagging is. Know why.)
 27. Which is more sensitive to outliers, bagging or boosting, and what's the
     mechanism?
