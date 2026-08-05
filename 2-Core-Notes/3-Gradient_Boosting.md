@@ -567,8 +567,10 @@ This guide covers the technical interview progression for regular Data Scientist
    rounds only expect the one-line version from Q3.
 5. What does the learning rate (shrinkage ν) do? Describe the M–ν trade-off and
    how you'd tune both.
+   ```text
    Low ν (0.01)  ────── Requires ──────> High M (2000+ Trees)  [Precise, Slow]
    High ν (0.3)  ────── Requires ──────> Low M (100 Trees)    [Fast, Prone to Overfit]
+   ```
 7. Can gradient boosting overfit as you add trees? How do you detect and prevent
    it? (Contrast with RF.)
 8. How does AdaBoost work: weight updates, amount of say α = ½ln((1−ε)/ε),
