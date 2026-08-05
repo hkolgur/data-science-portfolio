@@ -544,9 +544,11 @@ This guide covers the technical interview progression for regular Data Scientist
   * **Add Regularization:** Turn up `gamma` (the minimum loss reduction required to make a split) or increase `reg_lambda` (L2 regularization on leaf weights) to penalize extreme leaf outputs.
   * **Implement Early Stopping:** Ensure an evaluation set is used during training so fitting terminates the moment validation loss plateaus.
   * You absolutely must check and monitor the data distributions of both your training and test/production data.
+    
     a. The Extrapolation Failure: Tree-based models cannot extrapolate outside the range of their training data. If your training data has
        an Income range of $20k to $100k, and production data suddenly features customers making $150k, XGBoost will treat the $150k
        customers exactly the same as the $100k customers. It simply clamps predictions to the highest learned split.
+    
     b. Feature Importance Drift: If your model relies heavily on Age to make predictions, but your production marketing campaign suddenly
        targets a completely different age demographic, the model's performance will plummet because its most heavily relied-upon splits no
        longer apply to the new population.
