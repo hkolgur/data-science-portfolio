@@ -567,48 +567,50 @@ This guide covers the technical interview progression for regular Data Scientist
    rounds only expect the one-line version from Q3.
 5. What does the learning rate (shrinkage ν) do? Describe the M–ν trade-off and
    how you'd tune both.
-6. Can gradient boosting overfit as you add trees? How do you detect and prevent
+   Low ν (0.01)  ────── Requires ──────> High M (2000+ Trees)  [Precise, Slow]
+   High ν (0.3)  ────── Requires ──────> Low M (100 Trees)    [Fast, Prone to Overfit]
+7. Can gradient boosting overfit as you add trees? How do you detect and prevent
    it? (Contrast with RF.)
-7. How does AdaBoost work: weight updates, amount of say α = ½ln((1−ε)/ε),
+8. How does AdaBoost work: weight updates, amount of say α = ½ln((1−ε)/ε),
    final weighted vote. How does it relate to GB? (Exponential loss.)
-8. AdaBoost vs GBDT vs Random Forest — a three-way comparison.
-9. What does XGBoost add on top of vanilla GBDT? (Regularization Ω, second-order
+9. AdaBoost vs GBDT vs Random Forest — a three-way comparison.
+10. What does XGBoost add on top of vanilla GBDT? (Regularization Ω, second-order
    gradients, sparsity-aware missing handling, sampling, systems optimizations.)
-10. How does XGBoost handle missing values at split time?
-11. Level-wise vs leaf-wise vs symmetric tree growth — which library does which,
+11. How does XGBoost handle missing values at split time?
+12. Level-wise vs leaf-wise vs symmetric tree growth — which library does which,
     and the overfitting/speed implications of each.
-12. Explain GOSS and EFB. Why do they make LightGBM fast without hurting accuracy?
-13. What is CatBoost's ordered target encoding, and what leakage problem does it
+13. Explain GOSS and EFB. Why do they make LightGBM fast without hurting accuracy?
+14. What is CatBoost's ordered target encoding, and what leakage problem does it
     solve compared to naive target/response encoding?
-14. You have a dataset with 200 high-cardinality categorical columns — which
+15. You have a dataset with 200 high-cardinality categorical columns — which
     booster do you reach for and why?
-15. Why is boosting hard to parallelize across trees, and what do modern
+16. Why is boosting hard to parallelize across trees, and what do modern
     libraries parallelize instead?
-16. Train/test complexity of GBDT; why is it good for low-latency serving despite
+17. Train/test complexity of GBDT; why is it good for low-latency serving despite
     having M trees?
-17. Define a **weak learner** and a **strong learner**. What question did AdaBoost
+18. Define a **weak learner** and a **strong learner**. What question did AdaBoost
     answer, and why did it matter?
-18. What are the **three ingredients** any boosting algorithm needs?
-19. What is a **weighted training set**, and how does the weighted error rate
+19. What are the **three ingredients** any boosting algorithm needs?
+20. What is a **weighted training set**, and how does the weighted error rate
     differ from ordinary error?
-20. Sketch α as a function of weighted error. What is α when ε = 0.5? What if
+21. Sketch α as a function of weighted error. What is α when ε = 0.5? What if
     ε > 0.5?
-21. Why must AdaBoost **renormalize** the weights every round?
-22. In a GBDT tree, several residuals land in one leaf. What value does the leaf
+22. Why must AdaBoost **renormalize** the weights every round?
+23. In a GBDT tree, several residuals land in one leaf. What value does the leaf
     output, and why?
-23. **Is boosting robust to noisy labels?** (No — bagging is. Know why.)
-24. Which is more sensitive to outliers, bagging or boosting, and what's the
+24. **Is boosting robust to noisy labels?** (No — bagging is. Know why.)
+25. Which is more sensitive to outliers, bagging or boosting, and what's the
     mechanism?
-25. When would you pick Random Forest *over* a gradient booster?
-26. **How does gradient boosting work for classification?** What is F0, what
+26. When would you pick Random Forest *over* a gradient booster?
+27. **How does gradient boosting work for classification?** What is F0, what
     space do the trees live in, and how do you get a probability out?
-27. Are the trees in a gradient boosting *classifier* classification trees?
+28. Are the trees in a gradient boosting *classifier* classification trees?
     (No — regression trees, fit to `y − p` in log-odds space.)
-28. **How would you tune an XGBoost model?** In what order, and which parameter
+29. **How would you tune an XGBoost model?** In what order, and which parameter
     would you not tune by hand?
-29. Why does boosting use shallow trees while RF grows them fully? (Bias vs
+30. Why does boosting use shallow trees while RF grows them fully? (Bias vs
     variance, plus depth = maximum interaction order.)
-30. What happens to the number of trees needed if you halve the learning rate?
+31. What happens to the number of trees needed if you halve the learning rate?
 ### Core Decision Rules:
 * Use **LightGBM** if your dataset is massive (millions of rows) and training speed or low RAM usage is your main constraint.
 * Use **CatBoost** if your dataset is dominated by string/text categories and you want high out-of-the-box accuracy without manual tuning.
