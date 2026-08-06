@@ -16,10 +16,10 @@ df[df.duplicated()]          #Shows all duplicate rows (keeps the first occurren
 ## 2. Handling Missing Data (NaNs)
 ```python
 df.isna().sum()              # Count missing values per column
-df.dropna(axis=0, inplace=True) # Drop rows with any missing values
-df.dropna(subset=['col'], inplace=True) # Drop rows if missing in specific column
-df['col'].fillna(df['col'].median(), inplace=True) # Impute using median
-df.ffill(inplace=True)       # Forward fill (useful for time-series)
+df=df.dropna(axis=0) # Drop rows with any missing values
+df=df.dropna(subset=['col']) # Drop rows if missing in specific column
+df['col'] = df['col'].fillna(df['col'].median()) # Impute using median
+df = df.ffill()       # Forward fill (useful for time-series)
 ```
 
 ## 3. Data Transformation & Cleaning
@@ -178,7 +178,7 @@ num_cols = X_train.select_dtypes(include=['number']).columns.to_list()
 
 cat_transformer=Pipeline(steps=[
     ('imputer',SimpleImputer(strategy='constant',fill_value='missing')),
-    ('encoder',OneHotEncoder(drop='first', handle_unknown='ignore',sparse_output=False))])
+    ('encoder',OneHotEncoder(handle_unknown='ignore',sparse_output=False))])
 num_transformer=Pipeline(steps=[
     ('Imputer',SimpleImputer(strategy='median')),
     ('scaler',StandardScaler())])
@@ -195,11 +195,14 @@ nb_pipe_pred=nb_pipe.predict(X_test) #predict passes X_test through transform
 print(classification_report(y_test,nb_pipe_pred))
 
 #Hyper parameter tuning using Grid search
+nb_param_grid = {
+    'nb_classifier__var_smoothing': [1e-9, 1e-8, 1e-7]
+}
 # 3. Initialize Grid Search
 # Pass the entire pipeline as the estimator
 grid_search = GridSearchCV(
     estimator=clf_pipeline, 
-    param_grid=param_grid, 
+    param_grid=nb_param_grid, 
     cv=5,                     # 5-fold cross-validation
     scoring='accuracy', 
     n_jobs=-1                 # Use all available CPU cores
@@ -213,6 +216,37 @@ print(f"Best Parameters: {grid_search.best_params_}")
 # grid_search automatically uses the best found model configuration to predict
 y_pred = grid_search.predict(X_test)
 print(classification_report(y_test, y_pred))
+
+## Same for Trees:
+#Assemble the Master Pipeline
+tree_pipe = Pipeline(steps=[
+    ("preprocessor", preprocessor),
+    ("smote", SMOTE(random_state=42)),
+    ("tree_clf", RandomForestClassifier(random_state=42)) # Named 'tree_clf'
+])
+#  Define the Tree-Specific Hyperparameter Grid
+# Format: pipelineStepName__hyperparameterName
+param_grid = {
+    'tree_clf__n_estimators':,         # Number of trees in the forest
+    'tree_clf__max_depth': [5, 10, None],          # Controls tree depth (None allows max depth)
+    'tree_clf__min_samples_split':,         # Minimum samples required to split a node
+    'tree_clf__max_features': ['sqrt', 'log2'],    # Number of features considered at each split
+    'smote__k_neighbors': [3, 5]                  # You can even tune SMOTE parameters simultaneously!
+}
+
+#Initialize and run Grid Search
+grid_search = GridSearchCV(
+    estimator=tree_pipe, 
+    param_grid=param_grid, 
+    cv=5, 
+    scoring='f1_macro', 
+    n_jobs=-1
+)
+
+grid_search.fit(X_train, y_train)
+
+# Evaluate
+y_pred = grid_search.predict(X_test)
 ```
 ##11. Pipeline with SMOTE
 ```python
