@@ -83,18 +83,61 @@ pd.crosstab(df['col1'], df['col2']) # Frequency table comparing two variables
 from sklearn.model_selection import train_test_split
 from imblearn.over_sampling import SMOTE
 
-# 1. Separate features and target
-X = df.drop(columns=['target_column'])
-y = df['target_column']
+# 1. Separate features and target 
+X = df.drop(columns=['target_column']) 
+y = df['target_column'] 
 
-# 2. Split dataset (Stratify preserves minority class balance in both sets)
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42, stratify=y
-)
+# 2. Split dataset (Stratify preserves minority class balance in both sets) 
+X_train, X_test, y_train, y_test = train_test_split( 
+    X, y, test_size=0.2, random_state=42, stratify=y 
+) 
 
-# 3. Apply SMOTE to training data only (Prevents data leakage into test set)
-smote = SMOTE(random_state=42)
-X_train_res, y_train_res = smote.fit_resample(X_train, y_train)
+# Divide the dataset into numerical and categorical columns 
+numerical_columns = X_train.select_dtypes(exclude='O').columns.to_list() 
+categorical_columns = X_train.select_dtypes(include='O').columns.to_list() 
+
+# Separate numerical and categorical columns for train and test data 
+train_numerical = X_train[numerical_columns] 
+test_numerical = X_test[numerical_columns] 
+train_categorical = X_train[categorical_columns] 
+test_categorical = X_test[categorical_columns] 
+
+# Apply StandardScaler to numerical columns in train and test data 
+from sklearn.preprocessing import StandardScaler 
+scaler = StandardScaler() 
+
+# Apply StandardScaler on train data (fit and transform) 
+train_numerical_scaled = scaler.fit_transform(train_numerical) 
+# Apply the scaler on test data (transform only) 
+test_numerical_scaled = scaler.transform(test_numerical) 
+
+# Import OneHotEncoder from sklearn.preprocessing 
+from sklearn.preprocessing import OneHotEncoder 
+# FIX 1: Added sparse_output=False so it outputs a normal numpy array
+encoder = OneHotEncoder(sparse_output=False, handle_unknown='ignore') 
+
+# Apply OneHotEncoder on train data (fit and transform) 
+train_categorical_encoded = encoder.fit_transform(train_categorical) 
+# Apply the encoder on test data (transform only) 
+test_categorical_encoded = encoder.transform(test_categorical) 
+
+# Combine numerical and categorical columns in train and test data 
+import numpy as np
+# FIX 2: Wrapped the arrays in an extra set of parentheses (a tuple)
+combined_scaled_train = np.hstack((train_numerical_scaled, train_categorical_encoded)) 
+combined_scaled_test = np.hstack((test_numerical_scaled, test_categorical_encoded)) 
+
+# 3. Apply SMOTE to training data only. NEVER RUN ON TEST DATA 
+from imblearn.over_sampling import SMOTE
+smote = SMOTE(random_state=42) 
+X_train_res, y_train_res = smote.fit_resample(combined_scaled_train, y_train)
+
+# 4. Fit the model using the SMOTE-resampled training data
+m1.fit(X_train_res, y_train_res)
+
+# 5. Predict on the scaled test data 
+# (Notice we use 'combined_scaled_test' which was NOT altered by SMOTE)
+pred = m1.predict(combined_scaled_test)
 ```
 
 ## 9. Basic Modeling & Evaluation
@@ -113,4 +156,77 @@ y_pred = model.predict(X_test)
 print("Accuracy:", accuracy_score(y_test, y_pred))
 print("\nConfusion Matrix:\n", confusion_matrix(y_test, y_pred))
 print("\nClassification Report:\n", classification_report(y_test, y_pred))
+```
+## 10.Pipeline
+```python
+from sklearn.preprocessing import OneHotEncoder,StandardScaler
+from imblearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.compose import ColumnTransformer
+from sklearn.metrics import classification_report
+from sklearn.model_selection import train_test_split
+
+X=df.drop(columns=['y'])
+y=df['y']
+X_train,X_test,y_train,y_test=train_test_split(X,y,train_size=0.8,stratify=y,random_state=42)
+
+cat_cols = X_train.select_dtypes(include=['object', 'category']).columns.to_list()
+num_cols = X_train.select_dtypes(include=['number']).columns.to_list()
+
+cat_transformer=Pipeline(steps=[
+    ('imputer',SimpleImputer(strategy='constant',fill_value='missing')),
+    ('encoder',OneHotEncoder(drop='first', handle_unknown='ignore',sparse_output=False))])
+num_transformer=Pipeline(steps=[
+    ('Imputer',SimpleImputer(strategy='median')),
+    ('scaler',StandardScaler())])
+nb_preprocessor=ColumnTransformer(transformers=
+                                  [('num',num_transformer,num_cols),
+                                  ('cat',cat_transformer,cat_cols)],
+                                  remainder='drop')
+nb_pipe=Pipeline(steps=[("preprocessor",nb_preprocessor),
+                        ("smote",SMOTE(random_state=42)),
+                        ("nb_classifier",GaussianNB())])
+
+nb_pipe.fit(X_train,y_train) #does Both fit and transform
+nb_pipe_pred=nb_pipe.predict(X_test) #predict passes X_test through transform
+print(classification_report(y_test,nb_pipe_pred))
+
+#Hyper parameter tuning using Grid search
+# 3. Initialize Grid Search
+# Pass the entire pipeline as the estimator
+grid_search = GridSearchCV(
+    estimator=clf_pipeline, 
+    param_grid=param_grid, 
+    cv=5,                     # 5-fold cross-validation
+    scoring='accuracy', 
+    n_jobs=-1                 # Use all available CPU cores
+)
+# 4. Fit on Training Data
+# This safely runs the full cross-validated grid search without leakage
+grid_search.fit(X_train, y_train)
+# 5. Review Results & Predict
+print(f"Best Parameters: {grid_search.best_params_}")
+
+# grid_search automatically uses the best found model configuration to predict
+y_pred = grid_search.predict(X_test)
+print(classification_report(y_test, y_pred))
+```
+##11. Pipeline with SMOTE
+```python
+# CRITICAL: Import Pipeline from imblearn, NOT sklearn
+from imblearn.pipeline import Pipeline as ImbPipeline
+from imblearn.over_sampling import SMOTE
+
+# Define the pipeline with the correct sequential order
+safe_pipeline = ImbPipeline(steps=[
+    ('scaler', StandardScaler()),       # Step 1: Scale features so distance math is correct
+    ('smote', SMOTE(random_state=42)), # Step 2: Apply SMOTE on the cleanly scaled data
+    ('model', RandomForestClassifier()) # Step 3: Run the classifier
+])
+
+# When you run fit, it scales first, then applies SMOTE, then fits the model
+safe_pipeline.fit(X_train, y_train)
+
+# When you run predict, it automatically bypasses SMOTE (keeping test data pure)
+y_pred = safe_pipeline.predict(X_test)
 ```
