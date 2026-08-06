@@ -641,16 +641,17 @@ If Feature A (values: 0 or 1) and Feature B (values: 0 or 1) are never active at
     libraries parallelize instead?
 18. Train/test complexity of GBDT; why is it good for low-latency serving despite
     having M trees?
-##### GBDT Complexity Summary
+  ##### GBDT Complexity Summary
 
-* **Training Complexity:** $\mathcal{O}(M \cdot K \cdot N \log N)$ (Classical) or $\mathcal{O}(M \cdot K \cdot B)$ (Modern Histogram-based). Highly dependent on data size.
-* **Inference Complexity:** $\mathcal{O}(M \cdot d)$ per sample. Independent of training data size ($N$).
+  * **Training Complexity:** $\mathcal{O}(M \cdot K \cdot N \log N)$ (Classical) or $\mathcal{O}(M \cdot K \cdot B)$ (Modern Histogram-based).     Highly dependent on data size.
+  * **Inference Complexity:** $\mathcal{O}(M \cdot d)$ per sample. Independent of training data size ($N$).
 
-###### Why GBDTs meet low-latency SLAs (< 2ms):
-  1. **Shallow Structures:** $d$ is kept intentionally small ($3$ to $6$).
-  2. **Cheap Operations:** Uses basic CPU binary comparisons instead of matrix math.
-  3. **Inference Parallelism:** Tree outputs can be computed simultaneously in parallel threads and summed.
-  4. **Compilation Friendly:** Tools like Treelite convert trees into raw C++ logic for bare-metal execution.
+  ###### Why GBDTs meet low-latency SLAs (< 2ms):
+  
+    1. **Shallow Structures:** $d$ is kept intentionally small ($3$ to $6$).
+    2. **Cheap Operations:** Uses basic CPU binary comparisons instead of matrix math.
+    3. **Inference Parallelism:** Tree outputs can be computed simultaneously in parallel threads and summed.
+    4. **Compilation Friendly:** Tools like Treelite convert trees into raw C++ logic for bare-metal execution.
 
 20. Define a **weak learner** and a **strong learner**. What question did AdaBoost
     answer, and why did it matter? (Base Model performs better than random model , Highly accurate model)
