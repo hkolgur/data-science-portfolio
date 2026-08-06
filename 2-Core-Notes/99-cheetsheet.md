@@ -8,6 +8,9 @@ df.shape                     # (rows, columns) tuple
 df.head(5) / df.tail(5)      # View first or last 5 rows
 df['col'].value_counts()     # Count unique values (useful for target classes)
 df.nunique()                 # Count of unique values per column
+df.duplicated().sum()        # check for duplicates
+df[df.duplicated()]          #Shows all duplicate rows (keeps the first occurrence hidden)
+
 ```
 
 ## 2. Handling Missing Data (NaNs)
