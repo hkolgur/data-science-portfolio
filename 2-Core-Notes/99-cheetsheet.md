@@ -232,7 +232,7 @@ nb_preprocessor=ColumnTransformer(transformers=
                                   ('cat',cat_transformer,cat_cols)],
                                   remainder='drop')
 nb_pipe=Pipeline(steps=[("preprocessor",nb_preprocessor),
-                        ("smote",SMOTE(random_state=42)),
+                        ("smote",SMOTE(random_state=42)),  #smote woks only with imblearn.pipeline not regular pipeline
                         ("nb_classifier",GaussianNB())])
 
 nb_pipe.fit(X_train,y_train) #does Both fit and transform
@@ -266,7 +266,7 @@ print(classification_report(y_test, y_pred))
 #Assemble the Master Pipeline
 tree_pipe = Pipeline(steps=[
     ("preprocessor", preprocessor),
-    ("smote", SMOTE(random_state=42)),
+    ("smote", SMOTE(random_state=42)), #smote woks only with imblearn.pipeline not regular pipeline
     ("tree_clf", RandomForestClassifier(random_state=42)) # Named 'tree_clf'
 ])
 #  Define the Tree-Specific Hyperparameter Grid
