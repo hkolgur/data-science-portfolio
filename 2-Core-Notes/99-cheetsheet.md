@@ -29,7 +29,49 @@ df['col'] = df['col'].astype('int64')          # Convert data types
 df.rename(columns={'old':'new'}, inplace=True) # Rename columns
 df.drop(columns=['col1', 'col2'], inplace=True)# Drop columns
 ```
+## EDA
+```python
+#Basic EDA commands 
+plt.figure(figsize=(8,6))
 
+#Histogram
+sns.histplot(data=df,x='bmi',bins='fd',kde=True) #'fd'-IQRbase, 'scott' sdev based
+plt.axvline(df['bmi'].mean(), color='red', linestyle='--', label='Mean') #to see vertical line on mean
+plt.axvline(df['bmi'].median(), color='blue', linestyle=':', label='Median')
+plt.legend()
+
+#Countplot (Categorical Frequency & Class Imbalance)
+sns.countplot(data=df, x='gender_col', hue='target_col') 
+
+#barplot
+sns.barplot(data=df,x='category_col', y='numeric_value_col')
+
+#pie chart
+counts=df['col'].value_counts()
+plt.pie(counts,labels=counts.index,startangle=90,autopct='%1.1f%%')
+
+#scatter
+sns.scatterplot(data=df,x='age',y='expenses',hue='smoker')
+ 
+#box plot 
+num_cols=df.select_dtypes(exclude='O').columns.to_list()
+for col in num_cols:
+  plt.figure(figsize=(6,4))
+  sns.boxplot(data=df[col])
+  plt.show()
+
+#Pair Plot
+# Plots everything vs everything. Warning: Filter to 4-5 core columns on large dfs!
+sns.pairplot(data=df[['age', 'bmi', 'expenses', 'target_col']], hue='target_col')
+
+# 9. Missing Data Patterns (Visual Heatmap)
+# Dark lines highlight exactly where missing values are located across rows
+sns.heatmap(df.isna(), cbar=False, yticklabels=False, cmap='viridis')
+plt.show()
+
+#heatmap with corr
+sns.heatmap(df.corr(numeric_only=True),annot=True,cmap='coolwarm')
+```
 ## 4. Advanced Column Manipulation (Lists & Strings)
 ```python
 import ast
