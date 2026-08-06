@@ -64,14 +64,17 @@ df['size_encoded'] = df['size'].map({'Small': 1, 'Medium': 2, 'Large': 3})
 ## 6. Outliers & Scaling
 ```python
 # 1. IQR Outlier Filter
-Q1, Q3 = df['col'].quantile([0.25, 0.75])
-IQR = Q3 - Q1
-df_clean = df[~((df['col'] < (Q1 - 1.5 * IQR)) | (df['col'] > (Q3 + 1.5 * IQR)))]
+# Clean, fast, and completely safe  
+for col in ['col1', 'col2']:
+    Q1, Q3 = df[col].quantile([0.25, 0.75])
+    IQR = Q3 - Q1
+    df = df[(df[col] >= (Q1 - 1.5 * IQR)) & (df[col] <= (Q3 + 1.5 * IQR))]
 
 # 2. Feature Scaling (Scikit-Learn)
 from sklearn.preprocessing import StandardScaler
 scaler = StandardScaler()
-df[['col1', 'col2']] = scaler.fit_transform(df[['col1', 'col2']])
+X_train[['col1', 'col2']] = scaler.fit_transform(X_train[['col1', 'col2']])
+X_test[['col1', 'col2']] = scaler.transform(X_test[['col1', 'col2']])
 ```
 
 ## 7. Aggregation & Grouping
