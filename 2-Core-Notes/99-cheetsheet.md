@@ -43,10 +43,13 @@ df_exploded = df.explode('list_col')
 df['text'] = df['text'].str.strip().str.lower()
 ```
 
-## 5. Categorical Encoding
+## 5. Imputing and  Encoding
 ```python
-# Nominal Encoding (One-Hot / Dummy Variables)
-df = pd.get_dummies(df, columns=['cat_col'], drop_first=True)
+
+num_imputer = SimpleImputer(strategy='median')
+cat_imputer = SimpleImputer(strategy='most_frequent')
+encoder = OneHotEncoder(sparse_output=False, handle_unknown='ignore') 
+# for all 3 above line do fit_transform on train and only transform on testdata 
 
 # Multi-Label Encoding (List of tags/types per row)
 from sklearn.preprocessing import MultiLabelBinarizer
