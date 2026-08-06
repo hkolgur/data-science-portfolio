@@ -667,13 +667,73 @@ If Feature A (values: 0 or 1) and Feature B (values: 0 or 1) are never active at
 28. When would you pick Random Forest *over* a gradient booster?
 29. **How does gradient boosting work for classification?** What is F0, what
     space do the trees live in, and how do you get a probability out?
-30. Are the trees in a gradient boosting *classifier* classification trees?
+    #### GBDT Classification Walkthrough Summary
+
+    1. **Initialize:** Find baseline log-odds $F_0 = \ln(\text{pos}/\text{neg})$. Convert to starting probability $p_0$ via Sigmoid.
+    2. **Residuals:** Calculate raw errors in probability space: $\text{Residual} = y - p$.
+    3. **Tree Structure:** Fit a standard regression tree to partition those raw residuals into leaves.
+    4. **Leaf Aggregation:** Transform probability residuals to log-odds updates inside the terminal leaves:
+       $$\text{Leaf Output} = \frac{\sum (y - p)}{\sum p(1-p)}$$
+    5. **Update:** Update the log-odds profile linearly: $F_{new} = F_{old} + \nu(\text{Leaf Output})$. Map back to probability space to           start the next iteration.
+    # GBDT Classification Step-by-Step Numerical Walkthrough
+
+    **Setup:**
+    * **Dataset:** 3 rows, 2 features (`Income`, `Age`), 1 target (`Bought`).
+    * **Learning Rate ($\nu$):** 1.0 (for clean math).
+
+    ---
+
+    ### 1. Initial State: Baseline Anchor ($F_0$)
+
+    * **Formula:** $F_0 = \ln(\text{Class 1 Count} / \text{Class 0 Count}) = \ln(2/1) \approx 0.693$
+    * **Initial Probability ($p_0$):** $\sigma(0.693) = \frac{1}{1 + e^{-0.693}} \approx 0.667$
+
+    | Row | Income | Age | True Target ($y$) | Initial Log-Odds ($F_0$) | Initial Probability ($p_0$) | Raw Residual ($y - p_0$) |
+    | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+    | **Row 1** | \$40k | 25 | **1** | 0.693 | 0.667 | **+0.333** |
+    | **Row 2** | \$80k | 45 | **1** | 0.693 | 0.667 | **+0.333** |
+    | **Row 3** | \$30k | 50 | **0** | 0.693 | 0.667 | **-0.667** |
+
+---
+
+  ### 2. Tree 1 Generation & Leaf Mapping
+
+  The regression tree splits on **`Age <= 35`**, separating the probability-space residuals.
+
+  * **Leaf 1 (Left):** Receives **Row 1** (Age 25)
+  * **Leaf 2 (Right):** Receives **Row 2** (Age 45) and **Row 3** (Age 50)
+
+  #### Leaf Output Optimization Math
+  $$\text{Leaf Output} = \frac{\sum \text{Residuals}}{\sum p \cdot (1 - p)}$$
+  *Note: For every row here, the denominator component is $0.667 \times (1 - 0.667) = 0.222$.*
+
+  | Terminal Leaf | Allocated Rows | Sum of Residuals (Numerator) | Sum of Variances (Denominator) | Final Log-Odds Leaf Output |
+  | :--- | :--- | :--- | :--- | :--- |
+  | **Leaf 1** (Left) | Row 1 | $0.333$ | $0.222$ | $\frac{0.333}{0.222} = \mathbf{+1.50}$ |
+  | **Leaf 2** (Right) | Row 2, Row 3 | $0.333 + (-0.667) = -0.334$ | $0.222 + 0.222 = 0.444$ | $\frac{-0.334}{0.444} = \mathbf{-0.75}$ |
+
+---
+
+  ### 3. Ensemble Update & Final Output State ($F_1$)
+
+  * **Log-Odds Update Formula:** $F_1(x) = F_0 + \nu \cdot \text{Leaf Output}$
+  * **Probability Transformation:** $p_1 = \sigma(F_1) = \frac{1}{1 + e^{-F_1}}$
+
+  | Row | True Target ($y$) | Starting Log-Odds ($F_0$) | Tree 1 Output | Updated Log-Odds ($F_1$) | Final Probability ($p_1$) |   Performance Change |
+  | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+  | **Row 1** | **1** | 0.693 | +1.50 | 2.193 | **0.899** (89.9%) | Up from 66.7% (Closer to 1) |
+  | **Row 2** | **1** | 0.693 | -0.75 | -0.057 | **0.486** (48.6%) | Down from 66.7% (Further from 1) |
+  | **Row 3** | **0** | 0.693 | -0.75 | -0.057 | **0.486** (48.6%) | Down from 66.7% (Closer to 0) |
+
+  > **Next Loop Step:** The boosting algorithm will compute brand new residuals using $y - p_1$ ($+0.101$, $+0.514$, $-0.486$) and build Tree 2 to aggressively correct the misstep on Row 2.
+
+31. Are the trees in a gradient boosting *classifier* classification trees?
     (No — regression trees, fit to `y − p` in log-odds space.)
-31. **How would you tune an XGBoost model?** In what order, and which parameter
+32. **How would you tune an XGBoost model?** In what order, and which parameter
     would you not tune by hand?
-32. Why does boosting use shallow trees while RF grows them fully? (Bias vs
+33. Why does boosting use shallow trees while RF grows them fully? (Bias vs
     variance, plus depth = maximum interaction order.)
-33. What happens to the number of trees needed if you halve the learning rate?
+34. What happens to the number of trees needed if you halve the learning rate?
 ### Core Decision Rules:
 * Use **LightGBM** if your dataset is massive (millions of rows) and training speed or low RAM usage is your main constraint.
 * Use **CatBoost** if your dataset is dominated by string/text categories and you want high out-of-the-box accuracy without manual tuning.
