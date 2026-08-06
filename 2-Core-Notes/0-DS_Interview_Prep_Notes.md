@@ -225,6 +225,11 @@ P(A|B) = P(B|A) * P(A) / P(B)
 - Evaluation: use PR-AUC/F1 instead of accuracy.
 - **Say**: "I'd try class weighting first since it's simpler and doesn't distort the data distribution; SMOTE if that's insufficient."
 
+### for such classes which metric do you use and why?
+  - Use F1, Recall over accuracy to address imbalance .The F1-score is the harmonic mean of precision and recall.
+  - Recall (or Sensitivity) measures out of all the actual positive cases, how many your model successfully caught.
+  - Precision measures out of all the cases your model predicted as positive, how many were actually correct
+  - Followup question-> if you use smote you are balancing dataset then why use f1 can't we use accuracy?? Ans. we never use SMOTE on Test data . If we use data leakage big mistake. ***USE SMOTE ONLY ON TEST DATA***
 ---
 
 ## 6. Deep Learning Basics (know the fundamentals even if not a DL-heavy role)
