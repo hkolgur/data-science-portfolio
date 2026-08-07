@@ -16,10 +16,10 @@ df[df.duplicated()]          #Shows all duplicate rows (keeps the first occurren
 ## 2. Handling Missing Data (NaNs)
 ```python
 df.isna().sum()              # Count missing values per column
-df=df.dropna(axis=0) # Drop rows with any missing values
+df=df.dropna(axis=0) # Any col has missing values ,drop all those rows 
 df=df.dropna(subset=['col']) # Drop rows if missing in specific column
 df['col'] = df['col'].fillna(df['col'].median()) # Impute using median
-df = df.ffill()       # Forward fill (useful for time-series)
+df = df.ffill() #fill nan with prev known value until new value comes.Forward fill/ time-series
 ```
 
 ## 3. Data Transformation & Cleaning
@@ -34,23 +34,23 @@ df.drop(columns=['col1', 'col2'], inplace=True)# Drop columns
 #Basic EDA commands 
 plt.figure(figsize=(8,6))
 
-#Histogram
+#Histogram .continuous numerical values distributed across ranges
 sns.histplot(data=df,x='bmi',bins='fd',kde=True) #'fd'-IQRbase, 'scott' sdev based
 plt.axvline(df['bmi'].mean(), color='red', linestyle='--', label='Mean') #to see vertical line on mean
 plt.axvline(df['bmi'].median(), color='blue', linestyle=':', label='Median')
 plt.legend()
 
-#Countplot (Categorical Frequency & Class Imbalance)
+#categorical groups /count frequency/class-imbalance
 sns.countplot(data=df, x='gender_col', hue='target_col') 
 
-#barplot
+#sum/mean/median of numeric col(y) vs cat col(x).estimator="mean"
 sns.barplot(data=df,x='category_col', y='numeric_value_col')
 
-#pie chart
+#pie chart.need list as numbers, names 
 counts=df['col'].value_counts()
 plt.pie(counts,labels=counts.index,startangle=90,autopct='%1.1f%%')
 
-#scatter
+#relationship between 2 numeric cols
 sns.scatterplot(data=df,x='age',y='expenses',hue='smoker')
  
 #box plot 
