@@ -807,3 +807,28 @@ Since features are standardized using `StandardScaler` (centering data closely a
 5. **Mention the solver** — `lbfgs` is default but not always best; `saga` scales, `liblinear` is simple. Shows you think about implementation.
 6. **Imbalanced data prep** — mention class weighting and threshold tuning, not just upsampling.
 7. **Calibration for high-stakes** — LR is well-calibrated by construction, but verify it in production. Shows maturity.
+
+## ROC_AUC for logistic regression
+```python
+from sklearn.metrics import roc_curve,auc,RocCurveDisplay,roc_auc_score
+
+lr_model_proba=lr_model.predict_proba(combined_scaled_test) 
+#Extract positive class
+lr_model_proba_positive_class=lr_model_proba[:,1]
+
+#get various fpr,tpr and thresholds 
+fpr,tpr,thresholds=roc_curve(y_test,lr_model_proba_positive_class)
+j_score=tpr-fpr
+best_threshold=thresholds[np.argmax(j_score)]
+#actual auc score (area value)
+print("Auc Score:",roc_auc_score(y_test,lr_pred_prob_positive_calass)) 
+
+#Display curve
+l_rcd=RocCurveDisplay(fpr=fpr,tpr=tpr,roc_auc=auc(fpr,tpr))
+l_rcd.plot()
+plt.show()
+
+#convert to 0/1 based on 0.5 threshold and use to print classification report
+lr_model_positive_class=(lr_model_proba_positive_class>=0.5).astype(int) 
+
+```
