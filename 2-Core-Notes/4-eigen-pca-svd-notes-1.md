@@ -7,7 +7,7 @@
 
 ## How to use this
 
-Work through Parts 1 → 5 in order; the concepts stack strictly. Parts 6 → 8 are application and breadth (recommenders, non-linear methods, choosing between everything). Part 9 is the question bank, Part 11 is the pre-interview cheat sheet.
+Work through Parts 1 → 5 in order; the concepts stack strictly. Parts 6 → 7 are application and breadth. Part 8 is the question bank, Part 10 is the pre-interview cheat sheet.
 
 **The core insight to hold onto throughout:**
 
@@ -29,7 +29,6 @@ Mid-level interviews rarely ask you to hand-compute a 4×4 eigendecomposition. T
 | 6 | "You've reduced to 5 components — what do they mean?" | Do you understand that interpretability is usually lost? |
 | 7 | **"Why eigenvectors? Where does that come from?"** | Depth. Very few candidates can derive it — §4.9 takes 90 seconds |
 | 8 | "Walk me through PCA on a small example." | Can you actually compute it? Have §4.4 memorised |
-| 9 | **"PCA vs t-SNE?" / "can I conclude there are N clusters?"** | **Do you know t-SNE plots are not evidence? §7.3** |
 
 A clean answer to #1 in 60 seconds, plus a confident #2, gets you most of the credit available.
 
@@ -720,6 +719,10 @@ M  =  U  Σ  Vᵀ
 
 ⚠️ Note the shapes: in the **full** SVD, `U` is `m × m` and `Vᵀ` is `n × n`. In the **reduced (thin)** SVD — what `numpy.linalg.svd(M, full_matrices=False)` returns — `U` is `m × r` and `Σ` is `r × r` where `r = min(m,n)`. *(The source deck states `U` is `m × n` in text but draws `m × m`; the diagram is the full SVD and is the correct one.)*
 
+### What SVD actually does for you? We do SVD because it answers three vital engineering questions simultaneously:
+- **Vᵀ** answers: What are the fundamental, independent directions/patterns in my features?
+- Σ answers: How important is each of those patterns relative to the others?
+- U answers: How strongly does each individual row in my dataset align with those patterns?
 ## 5.2 Intuition
 
 Think of SVD as a **simplification process** — decomposing a complex system into simpler, ranked parts. The Lego analogy from the deck works well: a messy pile of bricks becomes neat stacks, sorted by colour and size.
@@ -974,244 +977,9 @@ The k-means objective then becomes minimising `‖X − MZ‖²` where `M` holds
 
 ---
 
-# Part 7 — Non-linear reduction: t-SNE & UMAP
+# Part 7 — Method comparison
 
-> 🔴 = expect it · 🟡 = likely follow-up · ⚪ = bonus depth
-> If you learn one thing here: **these are visualisation tools, not preprocessing steps**, and the things people naturally read off the plots — cluster sizes and the gaps between clusters — are exactly the things you must not trust.
-
----
-
-## 7.1 🔴 Why linear methods aren't enough
-
-PCA can only rotate and project. If your data lies on a **curved manifold**, no rotation untangles it.
-
-The standard picture: points arranged in two concentric rings, or a spiral, or a Swiss roll. The structure is obvious to the eye, but there is no straight line you can project onto that separates the rings — any linear projection overlaps them. PCA will faithfully report the directions of greatest variance and completely miss the pattern.
-
-**The manifold assumption:** high-dimensional data often lies on (or near) a much lower-dimensional curved surface embedded in that space. A 784-pixel MNIST digit lives in 784 dimensions, but the set of *plausible handwritten digits* is a far smaller curved region — stroke thickness, slant, curvature are only a handful of underlying degrees of freedom. **Manifold learning** methods try to "unroll" that surface.
-
-| | PCA | t-SNE / UMAP |
-|---|---|---|
-| Finds | Global linear directions of variance | Local neighbourhood structure |
-| Preserves | Large pairwise distances | Who is near whom |
-| Output for new data | `transform()` — a fixed matrix | t-SNE: none · UMAP: yes |
-| Deterministic | Yes (up to sign) | **No** |
-| Primary use | Preprocessing + visualisation | **Visualisation** |
-
----
-
-## 7.2 🔴 t-SNE — how it works
-
-**t-distributed Stochastic Neighbor Embedding** (van der Maaten & Hinton, 2008). Four steps:
-
-**1. Turn high-dimensional distances into probabilities.** For each point `i`, place a Gaussian centred on it and ask: *if `i` picked a neighbour at random in proportion to that Gaussian, how likely is it to pick `j`?* That gives a conditional probability `p_{j|i}`.
-
-The Gaussian's bandwidth `σᵢ` is set **per point** so that the entropy of its neighbour distribution matches a user-chosen **perplexity**. This is the clever bit: in a dense region `σᵢ` shrinks, in a sparse region it grows, so "neighbourhood" adapts to local density automatically.
-
-**2. Symmetrise.** `p_{ij} = (p_{j|i} + p_{i|j}) / 2n`, giving a single joint probability per pair.
-
-**3. Define low-dimensional similarities with a Student-t distribution** (1 degree of freedom, i.e. Cauchy):
-```
-q_{ij}  ∝  (1 + ‖yᵢ − yⱼ‖²)⁻¹
-```
-
-**4. Minimise `KL(P ‖ Q)`** over the low-dimensional positions `y` by gradient descent.
-
-### ⚪ Why a t-distribution? The crowding problem
-
-This is the question that separates people who've read the paper from people who've read a blog post.
-
-In high dimensions there is vastly more room at moderate distances than in 2-D — the volume of a shell grows like `r^(d−1)`, so a point can have many neighbours at "medium" distance. Squeeze that into a plane using a Gaussian in both spaces and all those moderately-distant points get crushed on top of each other. That's the **crowding problem**.
-
-The Student-t has **heavy tails**, so a moderate distance in high-D can be represented by a much larger distance in 2-D at little cost. The effect is that clusters push apart and become visually distinct instead of collapsing into one blob.
-
-### ⚪ Why it preserves local but not global structure
-
-Because **KL divergence is asymmetric**. The cost is `Σ pᵢⱼ log(pᵢⱼ/qᵢⱼ)`:
-
-- `p` large (close in high-D), `q` small (far in the plot) → `log` of a big ratio, weighted by a big `p` → **enormous penalty**
-- `p` small (far in high-D), `q` large (close in the plot) → weighted by a tiny `p` → **negligible penalty**
-
-So t-SNE is punished severely for tearing neighbours apart, and barely punished for placing distant points near each other. **That asymmetry is precisely why you can trust local neighbourhoods and must not trust the global layout.** Everything in §7.3 follows from this one fact.
-
----
-
-## 7.3 🔴 The caveats — the part interviewers test
-
-I ran this to make the point concrete. Three clusters in 50 dimensions, deliberately built with different spreads and separations:
-
-```
-                          within-cluster spread      centroid distances
-ORIGINAL 50-D            A=3.5   B=34.9   C=3.5      A–B=212    B–C=1909   (ratio 9.0)
-AFTER t-SNE              A=3.1   B=3.1    C=3.1      A–B=34.6   B–C=36.4   (ratio 1.05)
-```
-
-Cluster B was **ten times wider** than A and C. After t-SNE all three are identical in size. Cluster C was **nine times further** from B than A was. After t-SNE they're equidistant.
-
-**So, concretely:**
-
-**① Cluster sizes mean nothing.** t-SNE expands dense clusters and contracts sparse ones — that's the per-point bandwidth `σᵢ` doing its job. A big blob is not a more variable group.
-
-**② Distances between clusters mean nothing.** Two clusters far apart on the plot may not be far apart in the data. You cannot say "group A is more similar to B than to C" from a t-SNE plot.
-
-**③ Perplexity changes the picture substantially.** Same data, same seed:
-```
-perplexity =   5   → within-cluster spread ≈ 13.9
-perplexity =  30   → within-cluster spread ≈  3.0
-perplexity = 100   → within-cluster spread ≈  0.9
-```
-Always run 3–4 values (5–50 is the usual range) before believing anything.
-
-**④ It's stochastic.** Different seeds, different plots. Fix `random_state`. *(sklearn now defaults to `init='pca'`, which is more stable and reproducible than the old random init — worth knowing.)*
-
-**⑤ It can manufacture clusters that don't exist.** Run it on pure random noise with low perplexity and you will see convincing-looking clumps. **Never conclude "there are 5 groups" from a t-SNE plot alone** — verify with a clustering algorithm on the original data, silhouette scores, or a known label.
-
-**⑥ There is no `transform()`.** t-SNE optimises the positions of *these specific points*; it doesn't learn a reusable mapping. `sklearn.manifold.TSNE` has `fit_transform` but genuinely no `transform` — you can check with `hasattr(TSNE, 'transform')` → `False`. That's why it can't go in a production pipeline.
-
-**⑦ Don't cluster on t-SNE output.** Since distances are distorted, k-means on a 2-D t-SNE embedding is clustering an artefact. Cluster in the original space (or on PCA output) and use t-SNE to *display* the result.
-
-> **The line to say:** *"t-SNE is a visualisation tool. It preserves local neighbourhoods, so points near each other on the plot were near each other in the data — but cluster sizes, the gaps between clusters, and the number of apparent clusters are all artefacts. I'd use it to look at data, never as a preprocessing step, and I'd verify any clusters I thought I saw against the original space."*
-
----
-
-## 7.4 🟡 t-SNE hyperparameters
-
-| Parameter | What it does | Guidance |
-|---|---|---|
-| **`perplexity`** | Roughly *"how many neighbours count as local"* — sets the per-point Gaussian bandwidth | Default 30; try 5–50. Must be **< n_samples**. Low → many small fragmented clusters; high → everything merges |
-| `n_iter` / `max_iter` | Gradient descent steps | ≥ 1000. If the plot looks like a compressed ball, it hasn't converged |
-| `learning_rate` | Step size | `'auto'` (≈ n/12). Too low → dense ball; too high → scattered noise |
-| `init` | Starting layout | **`'pca'`** — now the sklearn default; more stable and reproducible than `'random'` |
-| `early_exaggeration` | Inflates `P` early so clusters separate before fine-tuning | Rarely needs changing (default 12) |
-| `metric` | Distance measure | `'euclidean'`; use `'cosine'` for text embeddings |
-
-**Complexity:** naive `O(n²)`; the Barnes-Hut approximation (sklearn's default for `n_components < 4`) gets it to `O(n log n)`. Still slow beyond ~10k points — which is a large part of why UMAP took over.
-
----
-
-## 7.5 🔴 UMAP — and how it differs
-
-**Uniform Manifold Approximation and Projection** (McInnes, Healy & Melville, 2018). The theory is built on Riemannian geometry and fuzzy simplicial sets, but the practical algorithm is two steps:
-
-1. **Build a weighted k-nearest-neighbour graph.** Edge weights encode how confident we are that two points are neighbours, with each point's local metric normalised by its distance to its nearest neighbour — so, like t-SNE's per-point bandwidth, it adapts to varying density.
-2. **Optimise a low-dimensional layout** so its own k-NN graph matches, minimising a **cross-entropy** loss via stochastic gradient descent with negative sampling (the same trick word2vec uses).
-
-**The key difference from t-SNE:** cross-entropy has a meaningful **repulsive term for non-neighbours**, where t-SNE's KL divergence effectively doesn't. UMAP is therefore penalised for placing unrelated points close together — which is why it retains noticeably more global structure.
-
-### Why UMAP is usually the better default
-
-| | t-SNE | UMAP |
-|---|---|---|
-| Speed | Slow; painful past ~10k points | **Much faster**; handles millions |
-| Global structure | Poor | **Better** (still not fully trustworthy) |
-| `transform()` for new data | **No** | **Yes** — can sit in a pipeline |
-| Embedding dimensions | Really only 2–3 | Works for higher `k`, so usable as actual DR |
-| Supervised mode | No | **Yes** — can use labels to guide the embedding |
-| Deterministic | No | No (but `random_state` works) |
-
-### UMAP's hyperparameters
-
-| Parameter | What it does | Guidance |
-|---|---|---|
-| **`n_neighbors`** | Local vs. global balance — the analogue of perplexity | Default 15. Small (2–5) → fine local detail, fragmented. Large (50–200) → broad global structure |
-| **`min_dist`** | How tightly points may pack in the embedding | Default 0.1. Small (0.0–0.1) → tight clumps, good if you'll cluster afterwards. Large (0.5–0.99) → evenly spread, better for seeing overall topology. **Purely about the picture — it has no effect on the underlying structure** |
-| `n_components` | Output dimensions | 2 for plots; 10–50 if using it as real DR |
-| `metric` | Distance | `'euclidean'`, `'cosine'` for embeddings, `'hamming'` for binary |
-
-⚠️ **UMAP is not caveat-free.** It's still stochastic, still distorts distances, and can still invent apparent clusters. It *preserves more* global structure than t-SNE, not *all* of it. Cluster sizes remain unreliable. Most of §7.3 still applies — just less severely.
-
----
-
-## 7.6 🔴 The standard workflow
-
-> **PCA first (to ~50 dimensions), then t-SNE or UMAP.**
-
-This is the recipe practitioners actually use, and saying it unprompted signals real experience. Three reasons:
-
-1. **Speed.** Both methods are dominated by neighbour computations, which are much cheaper in 50 dimensions than in 5,000.
-2. **Denoising.** PCA strips low-variance directions, which are largely noise; the neighbour graph then reflects real structure.
-3. **Distance quality.** Euclidean distance degrades in very high dimensions, and both methods depend entirely on neighbour distances being meaningful.
-
-```python
-from sklearn.decomposition import PCA
-from sklearn.manifold import TSNE
-from sklearn.preprocessing import StandardScaler
-
-X_scaled = StandardScaler().fit_transform(X)          # 1. scale
-X_pca    = PCA(n_components=50, random_state=0).fit_transform(X_scaled)   # 2. denoise
-X_emb    = TSNE(n_components=2, perplexity=30,
-                init='pca', random_state=0).fit_transform(X_pca)          # 3. visualise
-
-# UMAP equivalent (pip install umap-learn)
-# import umap
-# reducer = umap.UMAP(n_neighbors=15, min_dist=0.1, random_state=0)
-# X_emb   = reducer.fit_transform(X_pca)
-# X_new_emb = reducer.transform(X_new)      # ← t-SNE cannot do this
-```
-
-⚠️ **Scale before PCA**, for all the reasons in §4.5 — and both t-SNE and UMAP are distance-based, so unscaled features distort the neighbour graph too.
-
----
-
-## 7.7 🟡 Choosing between them
-
-```
-Need it in a production pipeline / for a downstream model?
-    → PCA  (deterministic, has transform, fast, interpretable variance)
-    → UMAP only if the structure is genuinely non-linear AND you accept stochasticity
-
-Just want to LOOK at the data?
-    → UMAP  (faster, better global structure, transform available)
-    → t-SNE if you specifically want the cleanest local cluster separation
-
-Have labels and want separation?
-    → LDA (supervised, linear) or supervised UMAP
-
-Sparse text / TF-IDF?
-    → TruncatedSVD (→ LSA), optionally UMAP on top for the picture
-
-Need to explain it to a regulator?
-    → None of these. Feature selection.
-```
-
-**A one-line summary worth having:** *"PCA for anything that needs to be reproducible and go into a model; UMAP for looking at data; t-SNE when I want the cleanest local cluster picture and I have time to run it."*
-
----
-
-## 7.8 🔴 Interview Q&A
-
-**Q: What's the difference between PCA and t-SNE?**
-> "PCA is linear, deterministic, and preserves global structure — large distances stay large — and it gives you a reusable transform you can apply to new data. t-SNE is non-linear and stochastic, and it optimises local neighbourhood preservation at the explicit expense of global structure. Practically: PCA is a preprocessing step that also happens to be useful for plots; t-SNE is a plotting tool that should never be a preprocessing step. It has no transform method at all, so it can't go in a pipeline."
-
-**Q: Your t-SNE plot shows five clean clusters. Can you conclude there are five groups?**
-> "No, and I'd be careful about that one — t-SNE can produce convincing-looking clusters from pure noise, especially at low perplexity. Before believing it I'd re-run at several perplexity values and several seeds to see whether five is stable, then verify in the original space: cluster there and check silhouette scores, or check whether the groups correspond to a known label. The plot is a hypothesis, not evidence."
-
-**Q: In a t-SNE plot, cluster A is much bigger than cluster B, and it sits far from cluster C. What can you conclude?**
-> "Essentially nothing from either observation. Cluster size is an artefact — t-SNE adapts its bandwidth to local density, so it expands tight clusters and contracts diffuse ones. In a test I ran, a cluster genuinely ten times wider than its neighbours came out exactly the same size after t-SNE. And between-cluster distance is equally unreliable: two clusters nine times further apart than another pair came out equidistant. The only thing I'd trust is that points plotted near each other were genuinely near each other in the data."
-
-**Q: What is perplexity?**
-> "Roughly the effective number of neighbours each point considers — it sets the bandwidth of the per-point Gaussian used to convert distances into probabilities. Because the bandwidth is fitted per point to hit that target entropy, the notion of 'neighbourhood' adapts to local density automatically. Typical values are 5 to 50, and it must be less than the sample size. Low perplexity fragments the data into many small clusters, high perplexity merges everything, and the picture changes enough between settings that I'd always try several."
-
-**Q: Why does t-SNE use a t-distribution rather than a Gaussian in the low-dimensional space?**
-> "The crowding problem. High-dimensional space has far more room at moderate distances than a plane does, so if you use a Gaussian in both spaces all the moderately-distant points get crushed together in the embedding. The t-distribution's heavy tails let a moderate high-dimensional distance map to a much larger low-dimensional one cheaply, so clusters spread out and become visually distinguishable."
-
-**Q: Why can't you apply t-SNE to a test set?**
-> "Because it doesn't learn a mapping — it directly optimises the coordinates of the specific points you gave it, by gradient descent on a loss defined over those points' pairwise similarities. There's no function to apply to a new point. sklearn's TSNE genuinely has no `transform` method. UMAP does, because it learns the embedding as a parametrised optimisation over a neighbour graph it can extend to new points, which is one of the practical reasons to prefer it."
-
-**Q: When would you use UMAP over t-SNE?**
-> "Most of the time, honestly. It's substantially faster and scales to far more points, it preserves more global structure because its cross-entropy loss includes a real repulsive term for non-neighbours where t-SNE's KL divergence effectively doesn't, and it has a `transform` so it can handle new data. It also supports a supervised mode. I'd still reach for t-SNE if I specifically wanted the cleanest local cluster separation for a figure. And I'd be clear that UMAP is *better* on global structure, not *reliable* on it — most of the same caveats apply, just less severely."
-
-**Q: You need to reduce 5,000 features to 50 for a downstream classifier. t-SNE or PCA?**
-> "PCA, without hesitation. t-SNE is for visualisation — it has no transform, so I couldn't apply the same reduction to test data or to anything in production; it's stochastic, so the features would change between runs; it's very slow in more than 2–3 output dimensions; and its distance distortions would actively mislead a distance-based classifier. PCA is deterministic, fast, reversible, and gives me an explained-variance curve to pick 50 defensibly. If I suspected genuinely non-linear structure I'd consider UMAP or an autoencoder as an alternative, but I'd validate that it actually beat PCA on the downstream metric before accepting the extra complexity and non-determinism."
-
-**Q: How would you tune t-SNE or UMAP? There's no loss to cross-validate.**
-> "There's no supervised objective, so it isn't tuning in the usual sense — it's a robustness check. I'd sweep the main parameter (perplexity, or `n_neighbors`) across a few values and several seeds, and look for structure that *persists*. Anything that appears at one setting and vanishes at the next, I don't report. If I have labels I can check whether known classes separate, and there are quantitative neighbourhood-preservation measures like trustworthiness and continuity — sklearn has `trustworthiness` — but in practice the honest answer is that the plot is exploratory and any finding needs confirming in the original space."
-
-
----
-
-# Part 8 — Method comparison
-
-## 8.1 The landscape
+## 7.1 The landscape
 
 **Linear methods:** PCA, SVD, Factor Analysis, LDA (Linear Discriminant Analysis), ICA
 **Non-linear methods:** t-SNE, UMAP, Kernel PCA, Autoencoders, Isomap
@@ -1222,7 +990,7 @@ Also worth distinguishing:
 
 > If an interviewer asks "how would you reduce dimensionality?", saying **"first I'd ask whether we need extraction or selection, because it depends on whether interpretability is a requirement"** is a better opening than jumping to PCA.
 
-## 8.2 Comparison table
+## 7.2 Comparison table
 
 | Method | Linear? | Supervised? | Preserves | Main use | Watch out |
 |---|---|---|---|---|---|
@@ -1241,13 +1009,24 @@ Also worth distinguishing:
 
 They're unrelated. Ask which one is meant if it's ambiguous; it makes you look careful, not confused.
 
-## 8.3 t-SNE and UMAP
+## 7.3 t-SNE — the caveats that matter
 
-Covered in depth in **Part 7**. The one-line version: both are **visualisation tools**, both are stochastic, and cluster sizes and between-cluster distances on their plots are artefacts. UMAP is the better default — faster, more global structure retained, and it has a `transform()` so it can handle new data.
+t-SNE produces beautiful cluster plots and is very easy to over-read.
 
-# Part 9 — Interview question bank
+- **It is for visualisation, not a preprocessing step.** There's no meaningful `transform()` for new points, so it can't sit in a production pipeline.
+- **Cluster *sizes* mean nothing.** t-SNE expands dense clusters and contracts sparse ones.
+- **Distances *between* clusters mean nothing.** Two clusters appearing far apart may not be far apart in the original space — it preserves local, not global, structure.
+- **Perplexity changes the picture substantially.** Always try several values (5–50) before drawing conclusions.
+- **It's stochastic** — different seeds, different plots. Fix the seed.
+- **It can manufacture apparent clusters** in data that has none.
 
-## 9.1 Conceptual
+> **UMAP** is generally the better default now: much faster, preserves more global structure, and has a genuine `transform()` for unseen data.
+
+---
+
+# Part 8 — Interview question bank
+
+## 8.1 Conceptual
 
 **Q: Explain PCA to a non-technical stakeholder.**
 > "Imagine you have 50 measurements about each customer, and many of them are telling you the same thing in different ways — annual income, monthly income, and spending limit all move together. PCA finds a smaller set of new summary scores that capture most of what varies across customers. Instead of 50 columns you might keep 6, lose very little information, and get a model that trains faster and is less likely to be thrown off by redundancy."
@@ -1306,7 +1085,7 @@ Covered in depth in **Part 7**. The one-line version: both are **visualisation t
 **Q: Can PCA be used for outlier detection?**
 > "Yes, in two ways. Project the data down to k components, reconstruct, and measure reconstruction error — points that reconstruct poorly don't fit the dominant structure. Or look at the scores on the trailing, low-variance components, where outliers often show up. The caveat is that outliers also *distort* the components in the first place, since variance uses squared deviations — so a robust PCA variant is often the safer tool."
 
-## 9.2 Mathematical
+## 8.2 Mathematical
 
 **Q: Compute the eigenvalues of `[[1,4],[3,2]]`.**
 > Full working in §2.4. `det(A−λI) = (1−λ)(2−λ) − 12 = λ² − 3λ − 10 = (λ−5)(λ+2)` → `λ = 5, −2`. Quick check: trace = 3 = 5 + (−2) ✓, det = −10 = 5 × (−2) ✓.
@@ -1335,7 +1114,7 @@ Covered in depth in **Part 7**. The one-line version: both are **visualisation t
 **Q: Prove the principal components are uncorrelated.**
 > "The covariance of the projected scores is `Wᵀ Σ W`. Substituting the eigendecomposition `Σ = WΛWᵀ` gives `Wᵀ W Λ Wᵀ W = Λ`, since `W` is orthogonal so `WᵀW = I`. `Λ` is diagonal, so all off-diagonal covariances are zero — the components are uncorrelated by construction, and each PC's variance is its eigenvalue."
 
-## 9.3 Applied / scenario
+## 8.3 Applied / scenario
 
 **Q: 10,000 features, 500 rows. How do you approach it?**
 > "The `d ≫ n` regime, so the covariance matrix is 10,000×10,000 and rank-deficient — at most 499 non-zero eigenvalues. I'd use SVD rather than explicit eigendecomposition for exactly that reason. But before reaching for PCA I'd ask what the features are: if they're sparse text, TruncatedSVD; if many are near-constant or duplicated, cheap filtering first; if interpretability matters, regularised feature selection with L1 instead. I'd also be wary that with 500 rows any covariance estimate is noisy, so I'd validate carefully rather than trusting explained-variance numbers."
@@ -1358,7 +1137,7 @@ Covered in depth in **Part 7**. The one-line version: both are **visualisation t
 **Q: A recommender's matrix is 99.5% empty. What do you do?**
 > "First, don't fill the missing entries with zero — for explicit ratings that's asserting a rating that was never given, and the model learns your imputation instead of preference. I'd use matrix factorization that sums loss only over observed entries, solved by ALS or SGD, with regularisation because sparsity invites overfitting. If the signal is implicit — clicks and views rather than stars — then treating unobserved as weak negatives *is* appropriate, with a confidence-weighted objective. And I'd add a content-based fallback for cold-start users and items, since factorization has nothing to work with there."
 
-## 9.4 Coding
+## 8.4 Coding
 
 **Q: Implement PCA from scratch.** — see §4.8.
 
@@ -1386,11 +1165,11 @@ compression = k * (img_gray.shape[0] + img_gray.shape[1] + 1) / img_gray.size
 
 ---
 
-# Part 10 — ⚠️ Errata in the source material
+# Part 9 — ⚠️ Errata in the source material
 
 **Read this before revising from the original slides.** Everything below was verified numerically.
 
-## 10.1 The covariance worked example has arithmetic errors
+## 9.1 The covariance worked example has arithmetic errors
 
 For the height/weight/age/income table (§3.4), using divisor `n = 3`:
 
@@ -1411,33 +1190,33 @@ np.cov(X, rowvar=False, bias=True)
 
 Also worth knowing: **that example dataset is rank 1** — all four variables are perfectly collinear, so its covariance matrix has exactly one non-zero eigenvalue. It's a valid arithmetic drill but a degenerate statistics example.
 
-## 10.2 The eigenvector equation is written backwards
+## 9.2 The eigenvector equation is written backwards
 
 The deck shows `v⃗(A − λI) = 0`. It should be **`(A − λI)v⃗ = 0`** — with `v` as a column vector, the dimensions only work with the matrix on the left. The subsequent `Det(A − λI) = 0` is correct.
 
-## 10.3 SVD matrix dimensions are inconsistent
+## 9.3 SVD matrix dimensions are inconsistent
 
 The text says `U` is `m×n` and `D` is `n×n`; the diagram on the same slide shows `U` as `m×m` and `Σ` as `m×n`. **The diagram is right** for the full SVD. Reduced SVD gives `U` as `m×r`, `Σ` as `r×r`, `r = min(m,n)`.
 
-## 10.4 "Σ has eigenvalues in increasing order"
+## 9.4 "Σ has eigenvalues in increasing order"
 
 From the personal notes. Two corrections: they are **singular values**, not eigenvalues, and they are sorted **decreasing** — which is precisely what makes "keep the top k" meaningful.
 
-## 10.5 The PCA standardisation inconsistency
+## 9.5 The PCA standardisation inconsistency
 
 The deck's PCA steps list standardisation as step 1, but the baseball covariance matrix shown (`[[2503.33, 1596.74],[1596.74, 1061.01]]`) is computed on **raw, unstandardised** data — standardised data would give a correlation matrix with 1s on the diagonal. Here it barely matters (99.15% vs 98.99% for PC1 because both features are counts on a similar scale), but don't reproduce the inconsistency.
 
-## 10.6 PC2's sign is inconsistent across slides
+## 9.6 PC2's sign is inconsistent across slides
 
 One slide gives `PC2 = 0.54·hit − 0.84·single`; a later one gives `PC2 = −0.54·hit + 0.84·single`. **Both are correct** — eigenvector signs are arbitrary. Just don't let it confuse you.
 
-## 10.7 "Fill the null values with 0"
+## 9.7 "Fill the null values with 0"
 
 Stated for the recommender ratings matrix. For **explicit** ratings this is the wrong default — it asserts a rating the user never gave. Proper matrix factorization sums the loss only over observed entries. For **implicit** feedback, zero-filling with confidence weighting is legitimate. See §6.5.
 
 ---
 
-# Part 11 — Cheat sheet
+# Part 10 — Cheat sheet
 
 ```
 ════════ EIGEN ════════
@@ -1514,24 +1293,6 @@ x=[2,4,6,8,10] y=[2,6,4,10,8] → both mean 6
 Σ = [[10,8],[8,10]]  → (10−λ)²=64 → λ = 18, 2   (trace 20 ✓ det 36 ✓)
 v₁=[1,1]/√2  v₂=[1,−1]/√2    explained: 90% / 10%
 
-════════ t-SNE / UMAP ════════
-BOTH: non-linear, STOCHASTIC, VISUALISATION ONLY, preserve LOCAL neighbourhoods
-t-SNE: distances→probabilities (Gaussian, per-point σ set by PERPLEXITY)
-       low-dim uses STUDENT-t (heavy tails → fixes CROWDING problem)
-       minimise KL(P‖Q) — ASYMMETRIC ⇒ punishes tearing neighbours apart,
-       NOT punishes putting far points together ⇒ local ok, global meaningless
-UMAP:  weighted k-NN graph → cross-entropy w/ negative sampling
-       cross-entropy HAS a repulsive term ⇒ keeps MORE global structure
-       n_neighbors (≈perplexity, local↔global) · min_dist (packing, cosmetic only)
-
-⚠️ CLUSTER SIZES MEANINGLESS   ⚠️ GAPS BETWEEN CLUSTERS MEANINGLESS
-⚠️ can invent clusters from noise   ⚠️ perplexity/seed change the picture
-⚠️ t-SNE has NO transform() → can't go in a pipeline.  UMAP DOES.
-⚠️ don't cluster on the embedding — cluster in the original space
-
-WORKFLOW:  scale → PCA to ~50 dims → t-SNE/UMAP     (speed + denoise + better distances)
-PICK:  pipeline/model → PCA.   Looking at data → UMAP.   Regulator → neither.
-
 ════════ CHOOSING k ════════
 cumulative explained variance ≥ 90/95%  |  scree elbow
 Kaiser λ>1 (correlation matrix only)    |  CV the downstream model ← best
@@ -1550,6 +1311,4 @@ Kaiser λ>1 (correlation matrix only)    |  CV the downstream model ← best
 - **3Blue1Brown, *Essence of Linear Algebra*** — especially the eigenvector episode
 - Jolliffe & Cadima (2016), *Principal component analysis: a review and recent developments*
 - Koren, Bell & Volinsky (2009), *Matrix Factorization Techniques for Recommender Systems* — the Netflix Prize paper
-- McInnes, Healy & Melville (2018), *UMAP: Uniform Manifold Approximation and Projection*
-- van der Maaten & Hinton (2008), *Visualizing Data using t-SNE* — the original
-- Wattenberg et al., *How to Use t-SNE Effectively* (Distill) — the caveats in §8.3, illustrated
+- Wattenberg et al., *How to Use t-SNE Effectively* (Distill) — the caveats in §7.3, illustrated
