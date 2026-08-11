@@ -719,6 +719,10 @@ M  =  U  Σ  Vᵀ
 
 ⚠️ Note the shapes: in the **full** SVD, `U` is `m × m` and `Vᵀ` is `n × n`. In the **reduced (thin)** SVD — what `numpy.linalg.svd(M, full_matrices=False)` returns — `U` is `m × r` and `Σ` is `r × r` where `r = min(m,n)`. *(The source deck states `U` is `m × n` in text but draws `m × m`; the diagram is the full SVD and is the correct one.)*
 
+### What SVD actually does for you? We do SVD because it answers three vital engineering questions simultaneously:
+- **Vᵀ** answers: What are the fundamental, independent directions/patterns in my features?
+- Σ answers: How important is each of those patterns relative to the others?
+- U answers: How strongly does each individual row in my dataset align with those patterns?
 ## 5.2 Intuition
 
 Think of SVD as a **simplification process** — decomposing a complex system into simpler, ranked parts. The Lego analogy from the deck works well: a messy pile of bricks becomes neat stacks, sorted by colour and size.
