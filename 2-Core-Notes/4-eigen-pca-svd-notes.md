@@ -1,7 +1,7 @@
 # Eigenvalues, Eigenvectors, PCA & SVD
 ### Study notes + interview question bank for mid-level Data Science interviews
 
-> Compiled from two sources: a set of personal notes on dimensionality reduction / recommender systems, and an Interview Kickstart deck on PCA & SVD. **Several numerical errors in the source deck are corrected here** — see Part 9, which is worth reading before you revise from the original slides.
+> Compiled from two sources: a set of personal notes on dimensionality reduction / recommender systems, and an personal deck on PCA & SVD. **Several numerical errors in the source deck are corrected here** — see Part 9, which is worth reading before you revise from the original slides.
 
 ---
 
