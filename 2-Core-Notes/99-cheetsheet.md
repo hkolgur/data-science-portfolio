@@ -162,7 +162,7 @@ test_numerical_scaled = scaler.transform(test_numerical)
 # Import OneHotEncoder from sklearn.preprocessing 
 from sklearn.preprocessing import OneHotEncoder 
 # FIX 1: Added sparse_output=False so it outputs a normal numpy array
-encoder = OneHotEncoder(sparse_output=False, handle_unknown='ignore') 
+encoder = OneHotEncoder(sparse_output=False, handle_unknown='ignore')   #when not in pipeline use drop='first'
 
 # Apply OneHotEncoder on train data (fit and transform) 
 train_categorical_encoded = encoder.fit_transform(train_categorical) 
@@ -223,7 +223,7 @@ num_cols = X_train.select_dtypes(include=['number']).columns.to_list()
 
 cat_transformer=Pipeline(steps=[
     ('imputer',SimpleImputer(strategy='constant',fill_value='missing')),
-    ('encoder',OneHotEncoder(handle_unknown='ignore',sparse_output=False))])
+    ('encoder',OneHotEncoder(handle_unknown='ignore',sparse_output=False))])  #when not in pipeline use drop='first'
 num_transformer=Pipeline(steps=[
     ('Imputer',SimpleImputer(strategy='median')),
     ('scaler',StandardScaler())])
