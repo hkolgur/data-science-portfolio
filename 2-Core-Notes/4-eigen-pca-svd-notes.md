@@ -104,7 +104,7 @@ Rank is the bridge from linear algebra to "why do we need dimensionality reducti
 ```
 A v = λ v
 ```
-- `A` — an `n×n` **square** matrix (eigenvectors are only defined for square matrices)
+- `A` — an `n×n` **square** matrix (eigenvectors are only defined for square matrices). Non-singular/Singular. If singular(det(A) = 0) , at least one of Eigen value will be 0.
 - `v` — the eigenvector (direction)
 - `λ` — the eigenvalue (magnitude of stretch)
 
