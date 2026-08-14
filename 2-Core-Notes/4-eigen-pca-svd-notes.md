@@ -914,6 +914,9 @@ A predicted rating is then just a dot product:
 
 **What the latent factors mean:** nothing explicitly — they're learned, not specified. But they often *emerge* as recognisable concepts: a "gritty vs. feel-good" axis, an "action vs. dialogue" axis. A user's vector says how much they want each; an item's vector says how much it has of each. In the table above, U1 and U3 both rate Movie2 and Movie3 highly — MF discovers this shared preference direction and uses it to predict.
 
+**Sharing Knowledge: The algorithm does not look at your 5 ratings (out of 100 movies available) in isolation. If you rated Movie X highly, it finds thousands of other users who also liked Movie X. It then looks at what those users rated highly among the remaining 95 movies to build your recommendations
+
+
 ## 6.5 The optimisation
 
 > **Find `B` and `C` minimising squared error over the entries of `A` that are actually observed:**
