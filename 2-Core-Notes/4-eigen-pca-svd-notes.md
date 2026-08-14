@@ -976,6 +976,7 @@ The k-means objective then becomes minimising `‖X − MZ‖²` where `M` holds
 | **Popularity bias** | Tends to over-recommend already-popular items, reinforcing a feedback loop |
 
 ---
+**Real-World Solution: Hybrid Systems** 
 ```text
                   ┌──────────────────────┐
                   │   Raw User & Item    │
