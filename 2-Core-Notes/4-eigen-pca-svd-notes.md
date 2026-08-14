@@ -843,6 +843,32 @@ This family — **LSA, pLSA, LDA, GloVe** — all learn word vectors by factoris
 
 # Part 6 — Matrix Factorization & Recommender Systems
 
+# Recommendation Systems Cheat Sheet
+
+## 👥 1. Collaborative Filtering (Behavior-Based)
+*Core Concept: Analyzes patterns in user behaviors, clicks, and ratings without needing to know what the items actually are.*
+
+### A. User-User Collaborative Filtering
+* **How it works:** Finds users with similar rating histories to the target user and recommends items those lookalike peers enjoyed.
+* **Pros/Cons:** Highly personalized but scales poorly as user numbers grow.
+
+### B. Item-Item Collaborative Filtering
+* **How it works:** Measures similarity between items based on how frequently the same people rate or buy them together.
+* **Pros/Cons:** Computationally stable and efficient since item catalogs change slower than user bases.
+
+### C. Matrix Factorization (Latent-Factor Model)
+* **How it works:** Compresses the raw user-item matrix into hidden, mathematical dimensions to predict missing ratings via quick dot products.
+* **Pros/Cons:** Handles sparse data brilliantly and calculates recommendations in microseconds, but lacks explainability.
+
+---
+
+## 🏷 2. Content-Based Filtering (Attribute-Based)
+*Core Concept: Completely ignores other users and focuses entirely on matching item traits to a single user's profile.*
+
+* **How it works:** Recommends items that share text keywords, genres, actors, or descriptions with items the target user has explicitly liked before.
+* **Pros/Cons:** Solves the cold-start problem for new items, but limits discovery by trapping users in an echo chamber of things they already know they like.
+
+
 ## 6.1 What matrix factorization is
 
 > Decomposing a matrix into a product of two or more lower-rank matrices — `A ≈ B · Cᵀ` — to uncover **latent features** in the data.
