@@ -976,7 +976,27 @@ The k-means objective then becomes minimising `‖X − MZ‖²` where `M` holds
 | **Popularity bias** | Tends to over-recommend already-popular items, reinforcing a feedback loop |
 
 ---
+```text
+                  ┌──────────────────────┐
+                  │   Raw User & Item    │
+                  │     Interactions     │
+                  └──────────┬───────────┘
+                             │
+            ┌────────────────┼────────────────┐
+            ▼                ▼                ▼
+     ┌─────────────┐  ┌─────────────┐  ┌─────────────┐
+     │   Matrix    │  │  Content-   │  │ Item-to-Item│
+     │Factorization│  │    Based    │  │ Similarity  │
+     └──────┬──────┘  └──────┬──────┘  └──────┬──────┘
+            │                │                │
+            └────────────────┼────────────────┘
+                             ▼
+                  ┌──────────────────────┐
+                  │ Ensemble / Ranker    │───► Final Top 10
+                  │ (Deep Learning Model)│     Recommendations
+                  └──────────────────────┘
 
+```
 # Part 7 — Non-linear reduction: t-SNE & UMAP
 
 > 🔴 = expect it · 🟡 = likely follow-up · ⚪ = bonus depth
