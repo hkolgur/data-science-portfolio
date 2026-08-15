@@ -1113,6 +1113,7 @@ q_{ij}  ∝  (1 + ‖yᵢ − yⱼ‖²)⁻¹
 **4. Minimise `KL(P ‖ Q)`** over the low-dimensional positions `y` by gradient descent.
 
 # t-SNE Step-by-Step Numerical Example
+Calculate distance in high dim-> calculate Conditional Probabilities using exp ->Symmetrize Probabilities (p_ij)->Low-Dimensional Initialization -> Low-Dimensional Probabilities with student dist->Gradient Descent Optimization
 
 ## Setup Data
 Three 1D data points:
