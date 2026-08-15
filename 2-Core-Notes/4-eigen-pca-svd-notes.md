@@ -1210,6 +1210,12 @@ In high dimensions there is vastly more room at moderate distances than in 2-D �
 
 The Student-t has **heavy tails**, so a moderate distance in high-D can be represented by a much larger distance in 2-D at little cost. The effect is that clusters push apart and become visually distinct instead of collapsing into one blob.
 
+- Assume a point in high-dimensional space. It has a few close neighbors at distances like 1 or 2, but it has hundreds of moderate neighbors at distances like 5 or 6 because high-dimensional volume grows exponentially.
+
+- When we try to map all of them to a 2D plane using a Gaussian distribution, 2D simply runs out of room. To preserve the probabilities of those hundreds of moderate neighbors, they all get crushed on top of each other, collapsing the local clusters into a single unreadable blob (the crowding problem).
+  
+- t-SNE solves this by switching to a Student-t distribution in 2D. Because the Student-t distribution has heavy tails, points can be placed much further apart in 2D while still yielding the same similarity probability. This gives the data room to breathe, allowing the moderate neighbors to push outward and letting distinct clusters visually separate.
+
 ### ⚪ Why it preserves local but not global structure
 
 Because **KL divergence is asymmetric**. The cost is `Σ pᵢⱼ log(pᵢⱼ/qᵢⱼ)`:
