@@ -851,14 +851,45 @@ This family — **LSA, pLSA, LDA, GloVe** — all learn word vectors by factoris
 ### A. User-User Collaborative Filtering
 * **How it works:** Finds users with similar rating histories to the target user and recommends items those lookalike peers enjoyed.
 * **Pros/Cons:** Highly personalized but scales poorly as user numbers grow.
+#### 👥 Handling Cold-Starts in User-User CF
+
+##### 1. When a New User is Added (User Cold-Start)
+* Pure User-User CF fails because a blank history cannot be mathematically compared to other users.
+* **Fix 1 (Demographic Matching):** Use onboarding data (age, location, selected preferences) to temporarily group the user with an existing cluster of similar peers.
+* **Fix 2 (Popularity Default):** Serve high-engagement, trending items to harvest the user's first few organic ratings.
+
+##### 2. When a New Item is Added (Item Cold-Start)
+* Pure User-User CF completely misses new items because zero users have it in their history to pass along to lookalike peers.
+* **Fix 1 (Content-Based Bridge):** Match the item's metadata directly to users with a strong historical affinity for that specific genre/tag.
+* **Fix 2 (Power-User Seeding):** Intentionally inject the unrated item into the feeds of highly active users to fast-track the collection of initial ratings.
 
 ### B. Item-Item Collaborative Filtering
 * **How it works:** Measures similarity between items based on how frequently the same people rate or buy them together.
 * **Pros/Cons:** Computationally stable and efficient since item catalogs change slower than user bases.
+#### 🆕 Handling New Users in Item-Item CF (User Cold-Start)
+* Pure Item-Item CF fails on new users because there is no interaction history to match against the item similarity matrix.
+* **Fix 1 (Onboarding):** Force user to pick 3 favorite items/genres at signup to seed their history.
+* **Fix 2 (Fallback):** Serve globally popular/trending items until the first organic click or rating occurs.
+#### 📦 Handling New Items in Item-Item CF (Item Cold-Start)
+* Pure Item-Item CF cannot recommend new items because they have zero user ratings/history to compute similarity.
+* **Fix 1 (Content-Based):** Seed the initial similarity scores using metadata (genres, description tags) instead of user behavior.
+* **Fix 2 (Exploration Boosting):** Intentionally inject new items into random user feeds to gather the first crucial interaction data.
+* **Fix 3 (Parent Inheritance):** Force the item to temporarily inherit the similarity scores of its overarching category or brand.
 
 ### C. Matrix Factorization (Latent-Factor Model)
 * **How it works:** Compresses the raw user-item matrix into hidden, mathematical dimensions to predict missing ratings via quick dot products.
 * **Pros/Cons:** Handles sparse data brilliantly and calculates recommendations in microseconds, but lacks explainability.
+#### 📉 Handling Cold-Starts in Matrix Factorization (MF)
+
+##### 1. When a New User is Added (User Cold-Start)
+* Pure MF fails because the new user lacks a latent vector ($b_i$) in User Matrix $B$ to compute dot products.
+* **Fix 1 (Average Vector):** Initialize the user with a global average vector or a vector representing their demographic cluster.
+* **Fix 2 (Folding-In / Projection):** Use onboarding selections to mathematically project and calculate a temporary vector ($b_i$) on the fly without running a full model retrain.
+
+##### 2. When a New Item is Added (Item Cold-Start)
+* Pure MF fails because the new item lacks a latent vector ($c_j$) in Item Matrix $C$.
+* **Fix 1 (Metadata Mapping):** Train a secondary model to convert item descriptions and genres into an estimated latent vector ($c_j$) based on similar items.
+* **Fix 2 (Average + Explore):** Give the item an average item vector and intentionally inject it into diverse user feeds to harvest the first training ratings.
 
 ---
 
@@ -868,6 +899,21 @@ This family — **LSA, pLSA, LDA, GloVe** — all learn word vectors by factoris
 * **How it works:** Recommends items that share text keywords, genres, actors, or descriptions with items the target user has explicitly liked before.
 * **Pros/Cons:** Solves the cold-start problem for new items, but limits discovery by trapping users in an echo chamber of things they already know they like.
 
+# 📈 Recommendation System Evaluation Metrics
+
+## 🧮 1. Rating Accuracy Metrics
+*Focus: Measuring how close predicted rating numbers are to the actual user ratings.*
+
+* **MAE (Mean Absolute Error):** The average absolute difference between predicted and actual ratings. Simple and interpretable.
+* **RMSE (Root Mean Squared Error):** Squares errors before averaging, heavily penalizing large misses. The standard metric used for traditional Matrix Factorization algorithms.
+
+## 🏅 2. Top-K Ranking Metrics
+*Focus: Measuring if the model puts the absolute best items at the very top of the user's feed.*
+
+* **Precision@K:** The percentage of recommended items in the top $K$ list that the user actually liked (e.g., 3 out of 5 hits = 60% Precision@5).
+* **Recall@K:** The percentage of total relevant items in the catalog that the model managed to capture inside the top $K$ recommendations.
+* **MAP (Mean Average Precision):** Computes precision across multiple recommendation lengths, penalizing the system if relevant items drop lower down the list.
+* **NDCG (Normalized Discounted Cumulative Gain):** The industry standard. Uses a logarithmic discount to give maximum credit for relevant items placed at rank #1, and significantly less credit for items placed lower down.
 
 ## 6.1 What matrix factorization is
 
