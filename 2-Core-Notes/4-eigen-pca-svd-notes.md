@@ -1112,6 +1112,95 @@ q_{ij}  ∝  (1 + ‖yᵢ − yⱼ‖²)⁻¹
 
 **4. Minimise `KL(P ‖ Q)`** over the low-dimensional positions `y` by gradient descent.
 
+# t-SNE Step-by-Step Numerical Example
+
+## Setup Data
+Three 1D data points:
+* x1 = 1.0
+* x2 = 2.0 (close to x1)
+* x3 = 5.0 (far from x1 and x2)
+
+---
+
+## Step 1: High-Dimensional Squared Distances
+Formula: d^2_ij = ||x_i - x_j||^2
+
+* d^2_12 = (1 - 2)^2 = 1.0
+* d^2_13 = (1 - 5)^2 = 16.0
+* d^2_23 = (2 - 5)^2 = 9.0
+
+---
+
+## Step 2: High-Dimensional Conditional Probabilities (p_j|i)
+Formula: p_j|i = exp(-d^2_ij / 2σ^2) / Sum_k[exp(-d^2_ik / 2σ^2)]
+Assumed fixed variance: 2σ^2 = 1.0 (Numerator becomes exp(-d^2_ij))
+
+* From x1's perspective:
+  - exp(-1.0) = 0.368
+  - exp(-16.0) = 0.000
+  - Sum = 0.368
+  - p_2|1 = 0.368 / 0.368 = 1.000
+  - p_3|1 = 0.000 / 0.368 = 0.000
+
+* From x2's perspective:
+  - exp(-1.0) = 0.368
+  - exp(-9.0) = 0.0001
+  - Sum = 0.3681
+  - p_1|2 = 0.368 / 0.3681 = 1.000
+  - p_3|2 = 0.0001 / 0.3681 = 0.000
+
+* From x3's perspective:
+  - exp(-16.0) = 0.000
+  - exp(-9.0) = 0.0001
+  - Sum = 0.0001
+  - p_1|3 = 0.000 / 0.0001 = 0.000
+  - p_2|3 = 0.0001 / 0.0001 = 1.000
+
+---
+
+## Step 3: Symmetrize Probabilities (p_ij)
+Formula: p_ij = (p_j|i + p_i|j) / (2 * n), where n = 3
+
+* p_12 = (1.000 + 1.000) / 6 = 0.333  <-- Target similarity
+* p_13 = (0.000 + 0.000) / 6 = 0.000  <-- Target similarity
+* p_23 = (0.000 + 1.000) / 6 = 0.167  <-- Target similarity
+
+---
+
+## Step 4: Low-Dimensional Map Initialization
+Random initial coordinates in 2D space:
+* y1 = [0.1, 0.2]
+* y2 = [0.5, 0.5]
+* y3 = [0.2, 0.9]
+
+---
+
+## Step 5: Low-Dimensional Probabilities (q_ij)
+Formula: w_ij = 1 / (1 + ||y_i - y_j||^2)  [Student-t Distribution]
+         q_ij = w_ij / Sum_pairs(w)
+
+* Calculate weights (w_ij):
+  - ||y1 - y2||^2 = 0.25 -> w_12 = 1 / (1 + 0.25) = 0.800
+  - ||y1 - y3||^2 = 0.50 -> w_13 = 1 / (1 + 0.50) = 0.667
+  - ||y2 - y3||^2 = 0.25 -> w_23 = 1 / (1 + 0.25) = 0.800
+  - Sum of all pair weights = 0.800 + 0.667 + 0.800 = 2.267
+
+* Normalize weights to get probabilities (q_ij):
+  - q_12 = 0.800 / 2.267 = 0.353  (Target p_12 = 0.333)
+  - q_13 = 0.667 / 2.267 = 0.294  (Target p_13 = 0.000)
+  - q_23 = 0.800 / 2.267 = 0.353  (Target p_23 = 0.167)
+
+---
+
+## Step 6: Gradient Descent Optimization
+Forces are calculated based on the difference between q_ij and p_ij:
+* q_12 (0.353) approx p_12 (0.333) -> Small force between y1 and y2.
+* q_13 (0.294) >> p_13 (0.000)      -> Strong repulsive force to push y1 and y3 apart.
+* q_23 (0.353) > p_23 (0.167)       -> Moderate repulsive force to push y2 and y3 apart.
+
+Coordinates y1, y2, y3 are updated. Steps 5 and 6 repeat for 500-1000 iterations.
+
+
 ### ⚪ Why a t-distribution? The crowding problem
 
 This is the question that separates people who've read the paper from people who've read a blog post.
