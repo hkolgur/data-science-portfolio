@@ -310,7 +310,11 @@ END     Clusters are ready.
 
 ### 5.4 Worked example — and why initialization matters
 
-**Data (1-D):** `X = {0, 1, 10, 11, 20, 21}`, `k = 3`. Obvious truth: `{0,1} {10,11} {20,21}`, SSE = 0.5 × 3 = **1.5**.
+**Data (1-D):** `X = {0, 1, 10, 11, 20, 21}`, `k = 3`. Obvious truth: `{0,1} {10,11} {20,21}`, for this best separation to compute SSE, first compute their centroids. (0+1)/2=0.5 ,(10+11)/2=11.5, (20+21)/2 =20.5 . Now compute SSE for each cluster.
+Cluster 1: (0 - 0.5)² + (1 - 0.5)² = 0.25 + 0.25 = 0.5
+Cluster 2: (10 - 10.5)² + (11 - 10.5)² = 0.25 + 0.25 = 0.5
+Cluster 3: (20 - 20.5)² + (21 - 20.5)² = 0.25 + 0.25 =0.5
+SSE = 0.5 × 3 = **1.5**.
 
 **Bad init:** `c1 = 0, c2 = 1, c3 = 10`
 
