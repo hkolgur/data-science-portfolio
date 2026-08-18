@@ -1,0 +1,5 @@
+# Client-side deps for your Mac venv (submitting + local smoke test).
+kubeflow-katib==0.17.0
+pandas==2.2.3
+scikit-learn==1.5.2
+joblib==1.4.2

@@ -1,0 +1,7 @@
+# Dependencies baked into the Trial container image.
+# The Katib SDK is NOT needed here — the objective function only prints metrics
+# to stdout, and Katib's sidecar collector scrapes them.
+# pandas is required because load_breast_cancer(as_frame=True) returns DataFrames.
+scikit-learn==1.5.2
+pandas==2.2.3
+joblib==1.4.2
