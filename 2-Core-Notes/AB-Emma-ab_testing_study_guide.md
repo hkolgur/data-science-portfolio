@@ -43,6 +43,8 @@ Every experiment evaluates two competing, mutually exclusive statistical positio
 * **$\delta$:** Minimum Detectable Effect
 
 ### Sample Size Calculation Template
+1. Primary Metric is Binay. Eg.Conversion or No-conversion ,Click or No-Click,
+2. Primary Metric is in form of Proportions or Averages.Eg. Mean Order Amount , Mean CLick Thru Rate .
 For a standard two-sample t-test comparing two proportions with equal variance, the total required sample size ($n$) per group is calculated using the following mathematical architecture:
 
 $$n \approx \frac{2 \sigma^2 (Z_{1-\alpha/2} + Z_{1-\beta})^2}{\text{MDE}^2}$$
