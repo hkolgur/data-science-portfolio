@@ -27,7 +27,7 @@ Every experiment evaluates two competing, mutually exclusive statistical positio
 *   **Alternative Hypothesis ($H_1$):** The variant creates a genuine, mathematically distinct impact on the OEC ($\mu_{treatment} - \mu_{control} \neq 0$).
 
 ### Core Statistical Parameters
-*   **Significance Level ($lpha$):** The probability of committing a Type I error (rejecting the null hypothesis when it is actually true—a "false positive"). The standard industry threshold is strictly capped at $lpha = 0.05$.
+*   **Significance Level ($lpha$):** The probability of committing a Type I error (rejecting the null hypothesis when it is actually true—a "false positive"). The standard industry threshold is strictly capped at $lpha = 0.05$. If Engineering cost is high to conduct test then business may keep alpha little high vs if the error is very critical then alpha will be set to very low.
 *   **Statistical Power ($1-eta$):** The probability of correctly rejecting the null hypothesis when a true effect exists (avoiding a Type II "false negative"). The standard industry baseline is targeted at $80\%$ ($eta = 0.20$).
 *   **Minimum Detectable Effect (MDE):** The smallest metric lift or absolute shift that the business considers practically meaningful to detect. Setting a smaller MDE requires a exponentially larger sample size to achieve sufficient statistical power.
 
