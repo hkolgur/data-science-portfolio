@@ -35,7 +35,8 @@ Every experiment evaluates two competing, mutually exclusive statistical positio
          2. It shows the smallest change your test can find.
          3. It depends on your sample size and data noise
    - If you cut MDE in half , we need 4x sample size. (1%-5% for high traffic sites, Email and Messaging  Range: 8% to 12%)
- **Power Analysis**
+ 
+**Power Analysis**
 * **$\beta$:** Probability of Type II Error
 * **$(1 - \beta)$:** Power of the test
 * **$\alpha$:** Probability of Type I Error, Significance Level
