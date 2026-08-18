@@ -60,10 +60,10 @@ For Sample size calculation with Binay Metric:
 * **$\delta$:** Minimum Detectable Effect
 
 ### Sample Size Calculation Template
-1. Primary Metric is Binay. Eg.Conversion or No-conversion ,Click or No-Click,
-2. Primary Metric is in form of Proportions or Averages.Eg. Mean Order Amount , Mean CLick Thru Rate .
+1. Primary Metric is in form of Proportions or Averages.Eg. Mean Order Amount , Mean CLick Thru Rate .
+# Sample Size Calculation for Proportions/Averages 
 
-For case 2: when we use means , we use Central Limit Theorem . Mean of the sample sizes drawn follow normal distribution for both control and treatment group and hence the difference of means also follow normal distribution.
+when we use means , we use Central Limit Theorem . Mean of the sample sizes drawn follow normal distribution for both control and treatment group and hence the difference of means also follow normal distribution.
 
 $$\bar{X}_{con} \sim N(\mu_{con}, \sigma_{con}^2)$$
 
@@ -81,6 +81,18 @@ Where:
 *   $\sigma^2$ represents the historical baseline variance of the core metric.
 *   $Z_{1-\alpha/2}$ represents the critical value for a two-tailed significance threshold (at $lpha = 0.05$, $Z_{0.975} = 1.96$).
 *   $Z_{1-\beta}$ represents the critical value for the targeted statistical power (at $1-eta = 0.80$, $Z_{0.80} = 0.84$).
+
+2. Primary Metric is Binay. Eg.Conversion or No-conversion ,Click or No-Click,
+   
+   # Sample Size Calculation for Binomial Proportions (CTR)
+
+When a metric has two outcomes (like Click vs. No Click), we treat user responses as independent Bernoulli Trials. The click events follow a binomial distribution based on sample size (impressions) and success probabilities ($p_{con}$ for Control, $p_{exp}$ for Experimental).
+
+To find the required sample size per group ($N$) for a two-sided test with a chosen significance level, power, and Minimum Detectable Effect ($\delta$), use the formula below:
+
+$$N = \frac{(\sqrt{2\bar{p}\bar{q}} \cdot z_{1-\frac{\alpha}{2}} + \sqrt{p_{con}q_{con} + p_{exp}q_{exp}} \cdot z_{1-\beta})^2}{\delta^2}$$
+
+*Note: Use A/A testing to estimate baseline values for $\bar{p}$ and $\bar{q}$.*
 
 ### Runtime & Duration Factors
 Never stop an experiment early the moment it crosses a significance boundary. The total runtime duration must be predetermined and strictly adhere to:
