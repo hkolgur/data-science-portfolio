@@ -54,7 +54,7 @@ $$\bar{X}_{exp} \sim N(\mu_{exp}, \sigma_{exp}^2)$$
 
 $$\bar{X}_{con} - \bar{X}_{exp} \sim N\left(\mu_{con} - \mu_{exp}, \frac{\sigma_{con}^2}{N_{con}} + \frac{\sigma_{exp}^2}{N_{exp}}\right)$$
 
-\frac{\sigma_{exp}^2} and \frac{\sigma_{con}^2} can be obtained from A/A testing. We already have alpha, Beta, delta.
+\sigma_{exp}^2 and \sigma_{con}^2 can be obtained from A/A testing. We already have alpha, Beta, delta.
 
 For a standard two-sample t-test comparing two proportions with equal variance, the total required sample size ($n$) per group is calculated using the following mathematical architecture:
 
