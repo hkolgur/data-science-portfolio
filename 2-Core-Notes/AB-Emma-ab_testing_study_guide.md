@@ -95,6 +95,7 @@ $$N = \frac{(\sqrt{2\bar{p}\bar{q}} \cdot z_{1-\frac{\alpha}{2}} + \sqrt{p_{con}
 *Note: Use A/A testing to estimate baseline values for $\bar{p}$ and $\bar{q}$.*
 
 ### Runtime & Duration Factors
+**Duration = N/#visitors per day** . IF this is 14 then run for 2 weeks
 Never stop an experiment early the moment it crosses a significance boundary. The total runtime duration must be predetermined and strictly adhere to:
 *   **Seasonality / Day-of-Week Effects:** Experiments must run in full-week increments (typically **14 to 28 days**) to capture cyclic weekly patterns. User behavior on Monday afternoon completely differs from user behavior on Saturday night; ending a test at 10 days introduces fatal bias.
 *   **Novelty Effects:** Users frequently interact with a new feature heavily at first simply because it is novel. Over a few weeks, this initial curiosity fade. Running a test over an extended duration isolates true long-term behavioral changes from temporary novelty spikes.
