@@ -343,6 +343,59 @@ c) Pick the next centroid from the remaining points with probability
 d) Repeat (b)-(c) until k centroids are chosen. Then run standard Lloyd.
 ```
 
+# K-Means++ Initialization Example
+
+**Dataset:** $X = \{0, 1, 10, 11, 20, 21\}$
+**Target Clusters:** $k = 3$
+
+---
+
+## Step 1: Choose First Center ($C_1$)
+Pick one point uniformly at random from the dataset $X$.
+* **Selection:** $C_1 = 0$
+
+---
+
+## Step 2: Choose Second Center ($C_2$)
+Calculate the shortest distance $D(x)$ from each point to the nearest existing center ($C_1 = 0$), square it ($D(x)^2$), and convert to a selection probability:
+
+$$P(x) = \frac{D(x)^2}{\sum D(x)^2}$$
+
+| Point ($x$) | Nearest Center | Distance $D(x)$ | $D(x)^2$ | Probability |
+| :--- | :--- | :--- | :--- | :--- |
+| **0** | 0 | 0 | 0 | 0.0% |
+| **1** | 0 | 1 | 1 | ~0.1% |
+| **10** | 0 | 10 | 100 | ~9.4% |
+| **11** | 0 | 11 | 121 | ~11.4% |
+| **20** | 0 | 20 | 400 | ~37.6% |
+| **21** | 0 | 21 | 441 | ~41.5% |
+| **Total** | | | **1063** | **100%** |
+
+* **Selection:** $C_2 = 21$ (Points furthest from $0$ have the highest probability)
+
+---
+
+## Step 3: Choose Third Center ($C_3$)
+Recalculate distances to the closest center among $C_1 = 0$ and $C_2 = 21$:
+
+| Point ($x$) | Nearest Center | Distance $D(x)$ | $D(x)^2$ | Probability |
+| :--- | :--- | :--- | :--- | :--- |
+| **0** | 0 | 0 | 0 | 0.0% |
+| **1** | 0 | 1 | 1 | 0.5% |
+| **10** | 0 | 10 | 100 | 49.5% |
+| **11** | 21 | 10 | 100 | 49.5% |
+| **20** | 21 | 1 | 1 | 0.5% |
+| **21** | 21 | 0 | 0 | 0.0% |
+| **Total** | | | **202** | **100%** |
+
+* **Selection:** $C_3 = 10$ (Points $10$ and $11$ hold a combined 99% probability)
+
+---
+
+## Final Result
+* **Initial Centers:** $\{0, 10, 21\}$
+* **Impact:** Centers are optimally spread across all 3 natural data density groups, guaranteeing convergence to the global minimum in 1 standard K-Means iteration.
+
 **Why probability ∝ D(x)² and not "just take the farthest point"?**
 Because the farthest point is very often an **outlier**. A deterministic farthest-point rule would make outliers centroids every single time. Probabilistic sampling makes far points *likely* but not *certain*, so outliers rarely dominate — while still spreading the seeds across different regions.
 
