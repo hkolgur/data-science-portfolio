@@ -37,9 +37,9 @@ Every experiment evaluates two competing, mutually exclusive statistical positio
    - If you cut MDE in half , we need 4x sample size. (1%-5% for high traffic sites, Email and Messaging  Range: 8% to 12%)
  
 **Power Analysis**
-* **$\beta$:** Probability of Type II Error
+* **$\alpha$:** Probability of Type I Error, Significance Level (False Positive).False ALaram
+* **$\beta$:** Probability of Type II Error (False Negative). Missed opportunity
 * **$(1 - \beta)$:** Power of the test
-* **$\alpha$:** Probability of Type I Error, Significance Level
 * **$\delta$:** Minimum Detectable Effect
 
 ### Sample Size Calculation Template
