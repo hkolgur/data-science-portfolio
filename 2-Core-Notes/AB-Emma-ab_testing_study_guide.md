@@ -5,6 +5,12 @@
 
 ## 1. Experiment Prerequisites & Core Mechanics
 Before launching an experiment, a data scientist must verify that the business problem and engineering infrastructure meet the structural prerequisites for a trustworthy online controlled experiment.
+-Questions to ask Before any A/B Test.
+   a. How sample population look like and what are the customer segments for target product
+   b. For current problem can we find a solution using Data Analysis/Historical data etc
+   c. Do we want to test single or multiple variants
+   d. Can we truly randomize Control and Treatment groups without bias
+   e. During entire duration of test can we ensure integrity of control and varient
 
 ### Key Concepts & Definitions
 *   **A/B Test / Controlled Experiment**: An experiment in which all elements are held constant except for one variable. It formally compares a control group (current version) against a treatment group (new feature or variant) to establish a clear causal relationship.
@@ -12,7 +18,13 @@ Before launching an experiment, a data scientist must verify that the business p
 *   **Randomization Unit**: The specific entity (the "who" or "what") that is uniquely and randomly allocated to either the control or treatment group. While individual **users** are the most common unit, other examples include sessions, page views, devices, or geographic regions.
 
 ### Critical Prerequisites Checklist
-*   [ ] **Define the Overall Evaluation Criteria (OEC):** Establish a single, quantitative metric or a heavily weighted composite index that serves as the gold standard for success. The OEC must be aligned upon by cross-functional stakeholders and be reliably measurable (e.g., *Revenue per user per month*).
+*   [ ] **Define the Overall Evaluation Criteria (OEC):** Establish a single, quantitative metric or a heavily weighted composite index that serves as the gold standard for success. The OEC must be aligned upon by cross-functional stakeholders and be reliably measurable. Example metrics:  , 
+   - *Revenue per user per month*
+   - Click-Through Rate (CTR) for usage CTR =  # total_clicks * 100 % / (# total_clicks +  # total_views)
+   -  Click-Through Probability (CTP) for impact CTP= #people with at least 1 click * 100% / #unique visitors per page
+   -  Conversion Rate CR = # converted /(#converted + #notconverted)
+
+     
 *   [ ] **Ensure Engineering Ease of Change:** Changes must be simple enough to cleanly isolate and deploy as separate variants. High-complexity monolithic changes (e.g., redesigning an entire e-commerce ecosystem all at once) introduce too many compounding variables, making it impossible to isolate causal factors.
 *   [ ] **Secure Adequate Sample Volatility:** The experiment environment must yield a massive volume of randomization units. A baseline standard requires **thousands** of units; a larger sample size naturally drives down standard error, enabling the test to confidently detect small, incremental metric shifts.
 
