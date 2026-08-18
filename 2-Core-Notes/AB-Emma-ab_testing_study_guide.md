@@ -45,6 +45,15 @@ Every experiment evaluates two competing, mutually exclusive statistical positio
 ### Sample Size Calculation Template
 1. Primary Metric is Binay. Eg.Conversion or No-conversion ,Click or No-Click,
 2. Primary Metric is in form of Proportions or Averages.Eg. Mean Order Amount , Mean CLick Thru Rate .
+
+For case 2: when we use means , we use Central Limit Theorem . Mean of the sample sizes drawn follow normal distribution for both control and treatment group and hence the difference of means also follow normal distribution.
+
+$$\bar{X}_{con} \sim N(\mu_{con}, \sigma_{con}^2)$$
+
+$$\bar{X}_{exp} \sim N(\mu_{exp}, \sigma_{exp}^2)$$
+
+$$\bar{X}_{con} - \bar{X}_{exp} \sim N\left(\mu_{con} - \mu_{exp}, \frac{\sigma_{con}^2}{N_{con}} + \frac{\sigma_{exp}^2}{N_{exp}}\right)$$
+
 For a standard two-sample t-test comparing two proportions with equal variance, the total required sample size ($n$) per group is calculated using the following mathematical architecture:
 
 $$n \approx \frac{2 \sigma^2 (Z_{1-\alpha/2} + Z_{1-\beta})^2}{\text{MDE}^2}$$
