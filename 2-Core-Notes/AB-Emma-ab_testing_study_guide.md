@@ -30,6 +30,10 @@ Every experiment evaluates two competing, mutually exclusive statistical positio
 *   **Significance Level ($lpha$):** The probability of committing a Type I error (rejecting the null hypothesis when it is actually true—a "false positive"). The standard industry threshold is strictly capped at $lpha = 0.05$. If Engineering cost is high to conduct test then business may keep alpha little high vs if the error is very critical then alpha will be set to very low.
 *   **Statistical Power ($1-eta$):** The probability of correctly rejecting the null hypothesis when a true effect exists (avoiding a Type II "false negative"). The standard industry baseline is targeted at $80\%$ ($eta = 0.20$).
 *   **Minimum Detectable Effect (MDE):** MDE is smallest change your test can reliably spot based on your sample size and noise level..The smallest metric lift or absolute shift that the business considers practically meaningful to detect. Setting a smaller MDE requires an exponentially larger sample size to achieve sufficient statistical power.
+   - What is MDE?
+         1. It is a statistical number.
+         2. It shows the smallest change your test can find.
+         3. It depends on your sample size and data noise
 
 ### Sample Size Calculation Template
 For a standard two-sample t-test comparing two proportions with equal variance, the total required sample size ($n$) per group is calculated using the following mathematical architecture:
