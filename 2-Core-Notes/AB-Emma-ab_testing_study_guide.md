@@ -61,7 +61,7 @@ For Sample size calculation with Binay Metric:
 
 ### Sample Size Calculation Template
 1. Primary Metric is in form of Proportions or Averages.Eg. Mean Order Amount , Mean CLick Thru Rate .
-# Sample Size Calculation for Proportions/Averages 
+#### Sample Size Calculation for Proportions/Averages 
 
 when we use means , we use Central Limit Theorem . Mean of the sample sizes drawn follow normal distribution for both control and treatment group and hence the difference of means also follow normal distribution.
 
@@ -84,7 +84,7 @@ Where:
 
 2. Primary Metric is Binay. Eg.Conversion or No-conversion ,Click or No-Click,
    
-   # Sample Size Calculation for Binomial Proportions (CTR)
+   #### Sample Size Calculation for Binomial Proportions (CTR)
 
 When a metric has two outcomes (like Click vs. No Click), we treat user responses as independent Bernoulli Trials. The click events follow a binomial distribution based on sample size (impressions) and success probabilities ($p_{con}$ for Control, $p_{exp}$ for Experimental).
 
