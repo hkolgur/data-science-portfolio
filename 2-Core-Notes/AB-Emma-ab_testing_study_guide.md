@@ -34,6 +34,7 @@ Every experiment evaluates two competing, mutually exclusive statistical positio
          1. It is a statistical number.
          2. It shows the smallest change your test can find.
          3. It depends on your sample size and data noise
+   - If you cut MDE in half , we need 4x sample size. (1%-5% for high traffic sites, Email and Messaging  Range: 8% to 12%)
 
 ### Sample Size Calculation Template
 For a standard two-sample t-test comparing two proportions with equal variance, the total required sample size ($n$) per group is calculated using the following mathematical architecture:
