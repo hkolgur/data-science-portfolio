@@ -21,7 +21,7 @@ Before launching an experiment, a data scientist must verify that the business p
 *   [ ] **Define the Overall Evaluation Criteria (OEC):** Establish a single, quantitative metric or a heavily weighted composite index that serves as the gold standard for success. The OEC must be aligned upon by cross-functional stakeholders and be reliably measurable. Example metrics:  , 
    - *Revenue per user per month*
    - Click-Through Rate (CTR) for usage CTR =  # total_clicks * 100 % / (# total_clicks +  # total_views)
-   -  Click-Through Probability (CTP) for impact CTP= #people with at least 1 click * 100% / #unique visitors per page
+   -  Click-Through Probability (CTP) for impact CTP= #people with at least 1 click * 100% / #unique visitors per page   . In CTP multiple clicks are counted as one. ex due to impatience if user clicks button multiple times in same session
    -  Conversion Rate CR = # converted /(#converted + #notconverted)
 
      
