@@ -313,7 +313,8 @@ $$\hat{p}_{exp} = \frac{X_{exp}}{N_{exp}} = \frac{\\#\text{clicks}_{exp}}{\\#\te
 ##### 🤝 Pooled Probability and Variance
 To test the difference between these probabilities, calculate the **pooled probability of success** and the **pooled variance**:
 
-$$\hat{p}_{pooled} = \frac{X_{con} + X_{exp}}{N_{con} + N_{exp}} = \frac{\#\text{clicks}_{con} + \#\text{clicks}_{exp}}{\#\text{impressions}_{con} + \#\text{impressions}_{exp}}$$
+$$\hat{p}_{pooled} = \frac{X_{con} + X_{exp}}{N_{con} + N_{exp}} = \frac{\\#\text{clicks}_{con} + \\#\text{clicks}_{exp}}{\\#\text{impressions}_{con} + \\#\text{impressions}_{exp}}$$
+
 
 $$\hat{S}^2_{pooled} = \hat{p}_{pooled}(1 - \hat{p}_{pooled}) \times \left(\frac{1}{N_{con}} + \frac{1}{N_{exp}}\right)$$
 ##### 📉 Standard Error and Test Statistic
