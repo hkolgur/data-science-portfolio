@@ -130,6 +130,223 @@ If an experiment plans a perfect 50/50 allocation split, and collects $N_{contro
 ## 4. Analyzing Results & Making Launch Decisions
 Once data integrity is verified, a data scientist must transform raw statistical outputs into a definitive business recommendation.
 
+Analyzing A/B test results with Python includes:
+
+1. Choosing an appropriate statistical test
+2. Calculating the test statistics (T)
+3. Calculating the p-value of the test statistics
+4. Reject or fail to reject the statistical hypothesis (statistical significance)
+5. Calculate the margin of error (external validity of the experiment)
+6. Calculate confidence interval (external validity and practical significance of the experiment)
+
+#### Choosing an appropriate statistical test
+Appropriate statistical test that is usually categorized in **parametric and non-parametric** tests. 
+The choice of the test depends on the following factors:format of the primary metric (underlying pdf),sample size (for CLT),nature of the statistical hypothesis (show that a relationship between two groups merely exists or identify the type of relationship between the groups)
+
+The most popular **parametric** tests that are used in A/B testing are:
+   -a. 2 Sample T-test (when N < 30, metric follows student-t distribution, and you want to identify whether there exist a   
+    relationship and the type of relationship between control and experimental groups)
+   -b. 2 Sample Z-test (when N > 30, metric follows asymptotic Normal distribution and you want to identify whether there exist a        relationship and the type of relationship between control and experimental groups)
+
+The most popular non-parametric tests that are used in A/B testing are:
+   -a. Fishers Exact test (small N, identify and you want to identify whether there exist a relationship between control and
+     experimental groups)
+   -b. Chi-Squared test (large N, identify and you want to identify whether there exist a relationship between control and
+      experimental groups)
+   -c. Wilcoxon Rank Sum/Mann Whitney test (small N or large N, skewed sampling distributions, testing the difference in medians
+     between control and experimental groups)
+
+### 2-Sample T-Test
+
+If you want to test whether there is a statistically significant difference between the control and experimental groups’ metrics that are in the form of averages (e.g., average purchase amount), the metric follows a Student-t distribution. When the sample size is smaller than 30, you can use a 2-sample T-test to test the following hypothesis:
+
+$$
+\begin{cases}
+H_0: \mu_{con} = \mu_{exp} \\
+H_1: \mu_{con} \neq \mu_{exp}
+\end{cases}
+$$
+
+Or alternatively written as:
+
+$$
+\begin{cases}
+H_0: \mu_{con} - \mu_{exp} = 0 \\
+H_1: \mu_{con} - \mu_{exp} \neq 0
+\end{cases}
+$$
+
+* **Control Group:** The sampling distribution of means follows a Student-t distribution with degrees of freedom: $N_{con} - 1$.
+  $$ \hat{\mu}_{con} \sim t(N_{con} - 1) $$
+* **Experimental Group:** The sampling distribution of means follows a Student-t distribution with degrees of freedom: $N_{exp} - 1$.
+  $$ \hat{\mu}_{exp} \sim t(N_{exp} - 1) $$
+
+*Note: $N_{con}$ and $N_{exp}$ represent the total number of users in the Control and Experimental groups, respectively.*
+
+#### Pooled Variance
+An estimate for the **pooled variance** of the two samples can be calculated as follows:
+
+$$ \hat{S}^2_{pooled} = \frac{(N_{con} - 1) * \sigma_{con}^2 + (N_{exp} - 1) * \sigma_{exp}^2}{N_{con} + N_{exp} - 2} * \left( \frac{1}{N_{con}} + \frac{1}{N_{exp}} \right) $$
+
+Where $\sigma^2_{con}$ and $\sigma^2_{exp}$ are the sample variances of the Control and Experimental groups, respectively. 
+
+#### Test Statistics
+Consequently, the **test statistic** ($T$) of the 2-sample T-test with the hypothesis stated earlier can be calculated as follows:
+
+$$ T = \frac{\hat{\mu}_{con} - \hat{\mu}_{exp}}{\sqrt{\hat{S}^2_{pooled}}} $$
+
+#### Statistical Significance and P-Value
+In order to test the **statistical significance** of the observed difference between sample means, we need to calculate the **p-value** of our test statistic. 
+
+The p-value is the probability of observing values at least as extreme as the observed value when this is due to random chance. Stated differently, the p-value is the probability of obtaining an effect at least as extreme as the one in your sample data, assuming the null hypothesis ($H_0$) is true. 
+
+Then the p-value of the test statistic can be calculated as follows:
+
+$$
+\begin{aligned}
+p_{value} &= \Pr[t \leq -T \text{ or } t \geq T] \\
+&= 2 * \Pr[t \geq T]
+\end{aligned}
+$$
+
+The interpretation of a p-value is dependent on the chosen significance level, **alpha** ($\alpha$), which was chosen before running the test during the *power analysis*. If the calculated p-value appears to be smaller than or equal to alpha (e.g., $0.05$ for a $5\%$ significance level) we can reject the null hypothesis and state that there is a statistically significant difference between the primary metrics of the Control and Experimental groups.
+
+#### Confidence Interval
+Finally, to determine how accurate the obtained results are and also to comment about the practical significance of the obtained results, you can compute the **Confidence Interval** (CI) of your test by using the following formula:
+
+$$ CI = \left[ (\hat{\mu}_{con} - \hat{\mu}_{exp}) - t_{1 - \frac{\alpha}{2}} * SE, \ (\hat{\mu}_{con} - \hat{\mu}_{exp}) + t_{1 - \frac{\alpha}{2}} * SE \right] $$
+
+where the t_(1-alpha/2) is the critical value of the test corresponding to the two-sided t-test with alpha significance level and can be found using the t-table.
+
+```python
+
+import numpy as np
+from scipy.stats import t
+
+N_con = 20
+df_con = N_con - 1 # degrees of freedom of Control 
+N_exp = 20
+df_exp = N_exp - 1 # degrees of freedom of Experimental 
+
+# Significance level
+alpha = 0.05
+
+# data of control group with t-distribution
+X_con = np.random.standard_t(df_con,N_con)
+# data of experimental group with t-distribution
+X_exp = np.random.standard_t(df_exp,N_exp)
+
+# mean of control
+mu_con = np.mean(X_con)
+# mean of experimental
+mu_exp = np.mean(X_exp)
+
+# variance of control
+sigma_sqr_con = np.var(X_con)
+#variance of control
+sigma_sqr_exp = np.var(X_exp)
+
+# pooled variance
+pooled_variance_t_test = ((N_con-1)*sigma_sqr_con + (N_exp -1) * sigma_sqr_exp)/(N_con + N_exp-2)*(1/N_con + 1/N_exp)
+
+# Standard Error
+SE = np.sqrt(pooled_variance_t_test)
+
+# Test Statistics
+T = (mu_con-mu_exp)/SE
+
+# Critical value for two sided 2 sample t-test
+t_crit = t.ppf(1-alpha/2, N_con + N_exp - 2)
+
+# P-value of the two sided T-test using t-distribution and its symmetric property
+p_value = t.sf(T, N_con + N_exp - 2)*2
+
+# Margin of Error
+margin_error = t_crit * SE
+# Confidence Interval
+CI = [(mu_con-mu_exp) - margin_error, (mu_con-mu_exp) + margin_error]
+
+print("T-score: ", T)
+print("T-critical: ", t_crit)
+print("P_value: ", p_value)
+print("Confidence Interval of 2 sample Z-test: ", np.round(CI,2))
+view raw 2 Sample t-test for Means.py hosted with ❤ by GitHub
+```
+
+### 📝 2-Sample Z-Test Notes
+
+#### 🔍 Overview
+* Use to test statistically significant differences between **Control** and **Experimental** groups.
+* Applies to metrics in the form of **averages** (e.g., average purchase amount) or **proportions** (e.g., CTR).
+* Requires the metric to follow a **Normal distribution**, **OR**
+* Requires a **sample size > 30** so the **Central Limit Theorem (CLT)** applies.
+* CLT ensures sampling distributions are asymptotically Normal.
+
+---
+
+#### 📌 Case 1: Z-test for Comparing Proportions (2-Sided)
+* Use when primary metrics are **proportions** (e.g., Click-Through Rate).
+* Assumes that events (like clicks) occur **independently**.
+* Tests for any significant difference between the two groups.
+
+##### 📋 Hypotheses
+$$
+\begin{cases}
+H_0: p_{con} = p_{exp} \\
+H_1: p_{con} \neq p_{exp}
+\end{cases}
+$$
+
+**Alternatively stated as:**
+$$
+\begin{cases}
+H_0: p_{con} - p_{exp} = 0 \\
+H_1: p_{con} - p_{exp} \neq 0
+\end{cases}
+$$
+
+##### 📊 Distribution Details
+* Each click event is a random variable taking two values: **1 (success)** or **0 (failure)**.
+* Follows a **Bernoulli distribution** where $p_{con}$ and $p_{exp}$ are the click probabilities.
+$$X_{con} \sim \text{Bern}(p_{con})$$
+$$X_{exp} \sim \text{Bern}(p_{exp})$$
+##### 🧮 Probability and Variance Estimates
+After collecting interaction data, calculate the estimated probabilities for each group:
+
+$$\hat{p}_{con} = \frac{X_{con}}{N_{con}} = \frac{\#\text{clicks}_{con}}{\#\text{impressions}_{con}}$$
+
+$$\hat{p}_{exp} = \frac{X_{exp}}{N_{exp}} = \frac{\#\text{clicks}_{exp}}{\#\text{impressions}_{exp}}$$
+
+##### 🤝 Pooled Probability and Variance
+To test the difference between these probabilities, calculate the **pooled probability of success** and the **pooled variance**:
+
+$$\hat{p}_{pooled} = \frac{X_{con} + X_{exp}}{N_{con} + N_{exp}} = \frac{\#\text{clicks}_{con} + \#\text{clicks}_{exp}}{\#\text{impressions}_{con} + \#\text{impressions}_{exp}}$$
+
+$$\hat{S}^2_{pooled} = \hat{p}_{pooled}(1 - \hat{p}_{pooled}) \times \left(\frac{1}{N_{con}} + \frac{1}{N_{exp}}\right)$$
+##### 📉 Standard Error and Test Statistic
+The **Standard Error (SE)** is the square root of the estimated pooled variance:
+
+$$SE = \sqrt{\hat{S}^2_{pooled}}$$
+
+Using the standard error, calculate the final **test statistic ($T$)** for the 2-sample Z-test:
+
+$$T = \frac{\hat{p}_{con} - \hat{p}_{exp}}{\sqrt{\hat{S}^2_{pooled}}}$$
+##### 📊 P-Value and Confidence Interval
+Calculate the **p-value** of the test statistic to determine statistical significance:
+
+$$
+\begin{aligned}
+p_{value} &= \Pr[Z \leq -T \text{ or } Z \geq T] \\
+&= 2 \times \Pr[Z \geq T]
+\end{aligned}
+$$
+
+Compute the **Confidence Interval (CI)** for the difference between the two proportions:
+
+$$CI = \left[ (\hat{p}_{con} - \hat{p}_{exp}) - z_{1-\frac{\alpha}{2}} \times SE, \,\, (\hat{p}_{con} - \hat{p}_{exp}) + z_{1-\frac{\alpha}{2}} \times SE \right]$$
+
+* **$z_{1-\frac{\alpha}{2}}$**: The critical value from the Z-table for a two-sided test at the $\alpha$ significance level.
+
 ### The Decision Matrix Framework
 When moving from statistical results to an active launch decision, use a strict dual-boundary evaluation model:
 
