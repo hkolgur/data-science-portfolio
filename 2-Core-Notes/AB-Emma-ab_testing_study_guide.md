@@ -299,6 +299,7 @@ $$
 
 * Where each click event is a random variable taking two values: **1 (success)** or **0 (failure)**.
 * Follows a **Bernoulli distribution** where $p_{con}$ and $p_{exp}$ are the click probabilities.
+  
 $$X_{con} \sim \text{Bern}(p_{con})$$
 $$X_{exp} \sim \text{Bern}(p_{exp})$$
 
@@ -307,6 +308,7 @@ Hence after collecting interaction data, calculate the estimated probabilities f
 $$\hat{p}_{con} = \frac{X_{con}}{N_{con}} = \frac{\#\text{clicks}_{con}}{\#\text{impressions}_{con}}$$
 
 $$\hat{p}_{exp} = \frac{X_{exp}}{N_{exp}} = \frac{\#\text{clicks}_{exp}}{\#\text{impressions}_{exp}}$$
+
 
 ##### 🤝 Pooled Probability and Variance
 To test the difference between these probabilities, calculate the **pooled probability of success** and the **pooled variance**:
