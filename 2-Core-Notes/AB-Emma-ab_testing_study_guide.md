@@ -399,6 +399,158 @@ Finally, compute the confidence interval of the test as follows:
 
 $$CI = \left[ (\hat{\mu}_{con} - \hat{\mu}_{exp}) - z_{1-\frac{\alpha}{2}} \times SE, \,\, (\hat{\mu}_{con} - \hat{\mu}_{exp}) + z_{1-\frac{\alpha}{2}} \times SE \right]$$
 
+```python
+
+import numpy as np
+from scipy.stats import norm
+
+N_con = 60
+N_exp = 60
+
+# Significance Level
+alpha = 0.05
+
+X_A = np.random.randint(100, size = N_con)
+X_B = np.random.randint(100, size = N_exp)
+
+# Calculating means of control and experimental groups
+mu_con = np.mean(X_A)
+mu_exp = np.mean(X_B)
+
+variance_con = np.var(X_A)
+variance_exp = np.var(X_B)
+
+# Pooled Variance
+pooled_variance = np.sqrt(variance_con/N_con + variance_exp/N_exp)
+
+# Test statistics
+T = (mu_con-mu_exp)/np.sqrt(variance_con/N_con + variance_exp/N_exp)
+
+# two sided test and using symmetry property of Normal distibution so we multiple with 2
+p_value = norm.sf(T)*2
+
+# Z-critical value
+Z_crit  = norm.ppf(1-alpha/2)
+
+# Margin of error
+m = Z_crit*pooled_variance
+
+# Confidence Interval
+CI = [(mu_con - mu_exp) - m, (mu_con - mu_exp) + m]
+
+
+print("Test Statistics stat: ", T)
+print("Z-critical: ", Z_crit)
+print("P_value: ", p_value)
+print("Confidence Interval of 2 sample Z-test for proportions: ", np.round(CI,2))
+
+import matplotlib.pyplot as plt
+z = np.arange(-3,3,  0.1)
+plt.plot(z, norm.pdf(z), label = 'Standard Normal Distribution',color = 'purple',linewidth = 2.5)
+plt.fill_between(z[z>Z_crit], norm.pdf(z[z>Z_crit]), label = 'Right Rejection Region',color ='y' )
+plt.fill_between(z[z<(-1)*Z_crit], norm.pdf(z[z<(-1)*Z_crit]), label = 'Left Rejection Region',color ='y' )
+plt.title("Two Sample Z-test rejection region")
+plt.legend()
+plt.show()
+```
+### 📊 Chi-Squared Test
+
+#### 🔍 Overview
+* Use to test whether there is a statistically significant difference between the **Control** and **Experimental** groups' performance metrics (e.g., conversions).
+* Use when you do not need to know the specific direction or nature of the relationship (i.e., which one is strictly better).
+* The metric must be a **binary variable** (e.g., conversion vs. no conversion, click vs. no click).
+
+##### 📋 Hypotheses
+$$
+\begin{cases}
+H_0: CR_{con} = CR_{exp} \\
+H_1: CR_{con} \neq CR_{exp}
+\end{cases}
+$$
+
+**Alternatively stated as:**
+$$
+\begin{cases}
+H_0: CR_{con} - CR_{exp} = 0 \\
+H_1: CR_{con} - CR_{exp} \neq 0
+\end{cases}
+$$
+
+---
+
+#### 📅 Contingency Tables
+The collected data is represented in a table where **O** corresponds to **Observed** values and **T** corresponds to **Theoretical (Expected)** values.
+
+**Theoretical / Expected Values ($T$):**
+
+| Group | # Sessions | # Converted | # Not Converted |
+| :--- | :--- | :--- | :--- |
+| **Control** | $N_{con}$ | $T_{con,1}$ | $T_{con,0}$ |
+| **Experimental** | $N_{exp}$ | $T_{exp,1}$ | $T_{exp,0}$ |
+
+**Observed Values ($O$):**
+
+| Group | # Sessions | # Converted | # Not Converted |
+| :--- | :--- | :--- | :--- |
+| **Control** | $N_{con}$ | $O_{con,1}$ | $O_{con,0}$ |
+| **Experimental** | $N_{exp}$ | $O_{exp,1}$ | $O_{exp,0}$ |
+
+---
+
+#### 🧮 Test Statistic ($T$)
+The general test statistic of the Chi-2 ($\chi^2$) test is expressed as:
+
+$$T = \sum_{i} \frac{(Observed_i - Expected_i)^2}{Expected_i}$$
+
+* **$Observed$** corresponds to your collected data.
+* **$Expected$** corresponds to the theoretical values.
+* **$i$** can take values of $0$ (no conversion) and $1$ (conversion). 
+
+Each of these factors has a separate denominator. Expanded for exactly two groups, the formula is:
+
+$$T = \frac{(O_{con,1} - T_{con,1})^2}{T_{con,1}} + \frac{(O_{con,0} - T_{con,0})^2}{T_{con,0}} + \frac{(O_{exp,1} - T_{exp,1})^2}{T_{exp,1}} + \frac{(O_{exp,0} - T_{exp,0})^2}{T_{exp,0}}$$
+
+##### 💡 Calculating Expected Values
+The expected value is equal to the number of times each version of the product is viewed, multiplied by the pooled probability of it leading to a conversion (or click in the case of CTR).
+
+⚠️ **Important Note:** Since the Chi-2 test is a non-parametric test, its Standard Error ($SE$) and Confidence Interval ($CI$) cannot be calculated in the standard way as done in the parametric Z-test or T-test.
+
+```python
+
+import numpy as np
+from scipy.stats import chi2
+
+O = np.array([86, 83, 5810,3920])
+T = np.array([105,65,5781, 3841])
+
+# Squared_relative_distance
+
+def calculate_D(O,T):
+    D_sum = 0
+    for i in range(len(O)):
+        D_sum += (O[i] - T[i])**2/T[i]
+    return(D_sum)
+
+D = calculate_D(O,T)
+p_value = chi2.sf(D, df = 1)
+
+
+import matplotlib.pyplot as plt
+# Step 1: pick a x-axis range like in case of z-test (-3,3,0.1)
+d = np.arange(0,5,0.1)
+# Step 2: drawing the initial pdf of chi-2 with df = 1 and x-axis d range we just created
+plt.plot(d, chi2.pdf(d, df = 1), color = "purple")
+# Step 3: filling in the rejection region
+plt.fill_between(d[d>D], chi2.pdf(d[d>D], df = 1), color = "y")
+# Step 4: adding title
+plt.title("Two Sample Chi-2 Test rejection region")
+# Step 5: showing the plt graph
+plt.show()
+```
+
+Standard Error and Confidence Interval for Non-parametric Tests:
+
+In the case of parametric tests, the calculation of Standard Error and Confidence Interval is straightforward. However, in the case of Non-parametric tests, the calculation is no longer straightforward. To calculate the Standard Error and the Confidence Interval of a non-parametric statistical test that aims to compare the sample means or sample medians of control and experimental groups, one needs to use resampling techniques such as Bootstrapping and Boostrap Quantile method, respectively.
 
 
 ### The Decision Matrix Framework
