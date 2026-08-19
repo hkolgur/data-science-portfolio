@@ -297,21 +297,12 @@ H_1: p_{con} \neq p_{exp}
 \end{cases}
 $$
 
-**Alternatively stated as:**
-$$
-\begin{cases}
-H_0: p_{con} - p_{exp} = 0 \\
-H_1: p_{con} - p_{exp} \neq 0
-\end{cases}
-$$
-
-##### 📊 Distribution Details
-* Each click event is a random variable taking two values: **1 (success)** or **0 (failure)**.
+* Where each click event is a random variable taking two values: **1 (success)** or **0 (failure)**.
 * Follows a **Bernoulli distribution** where $p_{con}$ and $p_{exp}$ are the click probabilities.
 $$X_{con} \sim \text{Bern}(p_{con})$$
 $$X_{exp} \sim \text{Bern}(p_{exp})$$
-##### 🧮 Probability and Variance Estimates
-After collecting interaction data, calculate the estimated probabilities for each group:
+
+Hence after collecting interaction data, calculate the estimated probabilities for each group:
 
 $$\hat{p}_{con} = \frac{X_{con}}{N_{con}} = \frac{\#\text{clicks}_{con}}{\#\text{impressions}_{con}}$$
 
