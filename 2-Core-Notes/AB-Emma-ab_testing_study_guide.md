@@ -341,6 +341,66 @@ $$CI = \left[ (\hat{p}_{con} - \hat{p}_{exp}) - z_{1-\frac{\alpha}{2}} \times SE
 
 * **$z_{1-\frac{\alpha}{2}}$**: The critical value from the Z-table for a two-sided test at the $\alpha$ significance level.
 
+
+#### 📌 Case 2: Z-test for Comparing Means (2-Sided)
+* Use to test whether there is a statistically significant difference between the Control and Experimental groups’ metrics that are in the form of **averages** (e.g., average purchase amount).
+
+##### 📋 Hypotheses
+$$
+\begin{cases}
+H_0: \mu_{con} = \mu_{exp} \\
+H_1: \mu_{con} \neq \mu_{exp}
+\end{cases}
+$$
+
+**Alternatively stated as:**
+$$
+\begin{cases}
+H_0: \mu_{con} - \mu_{exp} = 0 \\
+H_1: \mu_{con} - \mu_{exp} \neq 0
+\end{cases}
+$$
+
+##### 📊 Sampling Distributions
+The sampling distribution of the means for both groups follows a **Normal distribution**:
+
+$$\hat{\mu}_{con} \sim N\left(\mu_{con}, \frac{\sigma_{con}^2}{N_{con}}\right)$$
+
+$$\hat{\mu}_{exp} \sim N\left(\mu_{exp}, \frac{\sigma_{exp}^2}{N_{exp}}\right)$$
+
+The difference between the two sample means also follows a Normal distribution:
+
+$$\hat{\mu}_{con} - \hat{\mu}_{exp} \sim N\left(\mu_{con} - \mu_{exp}, \,\, \frac{\sigma_{con}^2}{N_{con}} + \frac{\sigma_{exp}^2}{N_{exp}}\right)$$
+
+---
+
+##### 🧮 Test Statistic ($T$)
+The test statistic of the 2-sample Z-test for the difference in means is calculated as follows:
+
+$$T = \frac{\hat{\mu}_{con} - \hat{\mu}_{exp}}{\sqrt{\frac{\sigma_{con}^2}{N_{con}} + \frac{\sigma_{exp}^2}{N_{exp}}}} \sim N(0, 1)$$
+
+##### 📉 Standard Error ($SE$)
+The standard error is equal to the square root of the estimate of the pooled variance:
+
+$$SE = \sqrt{\frac{\sigma_{con}^2}{N_{con}} + \frac{\sigma_{exp}^2}{N_{exp}}}$$
+
+##### 📈 P-Value
+The p-value of this test statistic is calculated as follows:
+
+$$
+\begin{aligned}
+p_{value} &= \Pr[Z \leq -T \text{ or } Z \geq T] \\
+&= 2 \times \Pr[Z \geq T]
+\end{aligned}
+$$
+
+##### 🔒 Confidence Interval ($CI$)
+Finally, compute the confidence interval of the test as follows:
+
+$$CI = \left[ (\hat{\mu}_{con} - \hat{\mu}_{exp}) - z_{1-\frac{\alpha}{2}} \times SE, \,\, (\hat{\mu}_{con} - \hat{\mu}_{exp}) + z_{1-\frac{\alpha}{2}} \times SE \right]$$
+
+
+
 ### The Decision Matrix Framework
 When moving from statistical results to an active launch decision, use a strict dual-boundary evaluation model:
 
