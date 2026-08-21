@@ -323,7 +323,7 @@ SSE = 0.5 × 3 = **1.5**.
 | 1 | `{0} {1} {10,11,20,21}` | 0, 1, 15.5 |
 | 2 | `{0} {1} {10,11,20,21}` (10 is 9 from c2, 5.5 from c3) | 0, 1, 15.5 → **converged** |
 
-Final SSE = 0 + 0 + (30.25 + 20.25 + 20.25 + 30.25) = **101** — massively worse than the optimum of 1.5, and the algorithm has *converged*. This is **initialization sensitivity** in one table, and it's the classic whiteboard question.
+Final SSE :For each cluster compute squared distance of each point to its centroid and add them.SSE = 0 + 0 + (30.25 + 20.25 + 20.25 + 30.25) = **101** — massively worse than the optimum of 1.5, and the algorithm has *converged*. This is **initialization sensitivity** in one table, and it's the classic whiteboard question.
 
 **Good init:** `c1 = 0, c2 = 10, c3 = 20` → converges immediately to the correct partition with SSE = 1.5.
 
