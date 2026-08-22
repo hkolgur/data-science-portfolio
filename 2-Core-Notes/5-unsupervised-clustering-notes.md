@@ -656,6 +656,14 @@ Step 6  UNTIL only a single cluster remains.
 
 The **key operation is step 5** — how you define the distance between two *clusters* (not two points) is what distinguishes the algorithms. Implementation tip: cluster membership is naturally handled with **set union** operations, and the update only needs the previous matrix (no full recomputation) — the Lance-Williams update formula.
 
+### Agglomerative Hierarchical Clustering (Scale & Complexity)
+* **For N = 10,000 samples:**
+  * **Merge Iterations:** Exactly **9,999** steps (N - 1).
+  * **Distance Matrix Updates:** Exactly **9,999** step updates (calculating 49,985,001 unique cluster-to-cluster distance entries).
+* **Complexity:**
+  * **Time:** O(N³) naive; optimized to \(O(N^2 \log N)\) with Priority Queues, or O(N²) for specific linkages (SLINK/CLINK/Ward's chain).
+  * **Space:** Always O(N²) to store the proximity matrix.
+
 ### 7.4 Linkage methods (inter-cluster similarity) — high-yield
 see below ex: Single linkage (MIN): When A,B is combined into one cluster next we take AUB as one row , one column and when we put distance from this union to other points we take either min list of each of A, B to other points (C,D,E) for single link or max in complete and update the matrix and cross out the individual A,B rows and columns.
 
@@ -765,6 +773,18 @@ labels = sch.fcluster(Z, t=3, criterion='maxclust')
 
 ⚠️ `linkage='ward'` **only** supports `metric='euclidean'`. For cosine/precomputed, use `average` or `complete`.
 
+###  Scikit-Learn vs. Scipy Workflow
+* **Scipy (`scipy.cluster.hierarchy`)** is completely self-contained. It does **not** require `sklearn.cluster.AgglomerativeClustering` to build, plot, or cut a dendrogram.
+* **Minimal Workflow:**
+  ```python
+  import scipy.cluster.hierarchy as sch
+  import matplotlib.pyplot as plt
+
+  Z = sch.linkage(X, method="ward")  # Builds the hierarchy tree
+  sch.dendrogram(Z)  # Generates plot matrix
+  plt.show()
+  labels = sch.fcluster(Z, t=3, criterion="maxclust")  # Cuts tree into clusters
+  ```
 ---
 
 ## 8. DBSCAN (and HDBSCAN / OPTICS)
