@@ -657,6 +657,7 @@ Step 6  UNTIL only a single cluster remains.
 The **key operation is step 5** — how you define the distance between two *clusters* (not two points) is what distinguishes the algorithms. Implementation tip: cluster membership is naturally handled with **set union** operations, and the update only needs the previous matrix (no full recomputation) — the Lance-Williams update formula.
 
 ### 7.4 Linkage methods (inter-cluster similarity) — high-yield
+see below ex: Single linkage (MIN): When A,B is combined into one cluster next we take AUB as one row , one column and when we put distance from this union to other points we take either min list of each of A, B to other points (C,D,E) for single link or max in complete and update the matrix and cross out the individual A,B rows and columns.
 
 | Linkage | Definition | Behaviour |
 |---|---|---|
