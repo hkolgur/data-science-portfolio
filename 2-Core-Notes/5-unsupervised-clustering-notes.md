@@ -684,7 +684,7 @@ Distance matrix:
 | **E** | 9 | 8 | 5 | 1 | 0 |
 
 **Single linkage (MIN):**
-
+When A,B is combined into one cluster next we take AUB as one row , one column and when we put distance from this union to other points we take either min list of each of A, B to other points (C,D,E) for single link or max in complete and update the matrix and cross out the individual A,B rows and columns.
 | Step | Merge | Height | Updated distances |
 |---|---|---|---|
 | 1 | {A,B} | 1 | AB–C = min(4,3) = 3; AB–D = 7; AB–E = 8 |
