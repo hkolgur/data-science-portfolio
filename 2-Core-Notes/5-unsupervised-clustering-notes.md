@@ -466,6 +466,13 @@ Because the farthest point is very often an **outlier**. A deterministic farthes
 
 ### 5.11 Code (scikit-learn)
 
+| Method | What it does | What it returns | Primary Use Case |
+| :--- | :--- | :--- | :--- |
+| **`.fit(X)`** | Calculates cluster centers based on data `X`. | **`None`** (updates model state in-place). | When you want to train the model now, but use it to cluster different data later. |
+| **`.fit_predict(X)`** | Calculates cluster centers and assigns labels to `X`. | **1D Array** of integer cluster assignments. | When you just need the final cluster categories for your training dataset. |
+| **`.fit_transform(X)`** | Calculates cluster centers and calculates distances. | **2D Array** of distances to each centroid. | When using KMeans as a feature extraction step for another ML model. |
+
+
 ```python
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
