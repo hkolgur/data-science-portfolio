@@ -225,7 +225,7 @@ Treat contiguous windows as single features.
   trigrams: [not_good_at, good_at_all]
 ```
 
-**The trade-off (memorise this):** n-grams buy local order at the cost of an **exponential vocabulary explosion** and worse sparsity. Unigram vocab ≈ 50k; bigram vocab can be millions. Standard practice: `ngram_range=(1,2)` plus `min_df` to prune rare grams.
+**The trade-off (memorise this):** n-grams buy local order at the cost of an **exponential vocabulary explosion** and worse sparsity. Unigram vocab ≈ 50k; bigram vocab can be millions. Standard practice: `ngram_range=(1,2)` plus `min_df` to prune rare grams. Eg. across multiple sentences like I love cats, I love dogs ,I love fish ,cats love fish ..unigrams just stores I love cats dogs fish . But bigrams stores I_love, love_cats,love_dogs,love_fish,cats_love,love_fish etc. it explodes as sentences increase
 
 > 🪤 **Trap:** "How do you capture 'New York' as one concept?" → bigrams, or collocation detection (`gensim.models.Phrases` using PMI thresholds), or just use a subword Transformer.
 
