@@ -69,3 +69,15 @@ $$P(w) = 1 - \sqrt{\frac{\text{threshold}}{\text{freq}(w)}}$$
 * **Out-of-Vocabulary (OOV):** Completely blind to unseen tokens, structural misspellings, or rare vocabulary modifications unless retrained.
 
 ---
+# GloVe vs. Word2Vec: Handling High-Frequency Words
+
+## ❌ Word2Vec (Sliding Window Failure)
+* **Incremental Updates:** Slides a local context window step-by-step across the text.
+* **Flooded Training:** High-frequency stop words (e.g., "the", "is") generate massive numbers of repetitive training pairs.
+* **Drowned Meanings:** Constant gradient updates from common words drown out rare, meaningful semantic connections (e.g., "chef" + "soup").
+
+##  GloVe (Global Matrix Control)
+* **Global Counting:** Compresses repetitions into a single global co-occurrence matrix before training.
+* **Capped Weighting:** Applies a weighting function $f(X_{ij}) = \min\left(\left(\frac{X_{ij}}{x_{max}}\right)^\alpha, 1.0\right)$ to the raw counts.
+* **Neutralized Power:** Caps the maximum weight at `1.0` once counts hit a threshold ($x_{max}$), preventing massive frequencies from scaling infinitely.
+* **Balanced Learning:** Ensures common pairs cannot mathematically dominate the loss function, leaving room for rare words to influence the vectors.
