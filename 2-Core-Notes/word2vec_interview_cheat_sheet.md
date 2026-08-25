@@ -1,4 +1,88 @@
 # NLP Embeddings & Vectorization Interview Cheat Sheet
+# NLP Word Representations: Comparative Analysis & Core Mechanics
+
+This note documents how different text embedding techniques process semantic context, using two contrasting sentences containing the homonym **"bank"**:
+*   **Sentence A (Geographic):** *"The bank of the river was muddy."*
+*   **Sentence B (Financial):** *"The bank approved the cash loan."*
+
+---
+
+## 1. Vocabulary Construction
+After lowercasing and removing stop words ("the", "of", "was"), both sentences share a combined vocabulary of **7 unique tokens** arranged alphabetically:
+`['approved', 'bank', 'cash', 'loan', 'muddy', 'river', 'string']` -> *Note: 'string' is omitted here for strict vocabulary mapping.*
+
+**Alphabetical Vocabulary Key:**
+`[0: approved, 1: bank, 2: cash, 3: loan, 4: muddy, 5: river]`
+
+---
+
+## 2. Binary Bag-of-Words (BOW)
+Tracks only the **presence (1)** or **absence (0)** of a token. It completely discards frequency, sequence, and grammar.
+
+### Vector Representations
+*   **Sentence A Vector:** `[0, 1, 0, 0, 1, 1]` 
+*   **Sentence B Vector:** `[1, 1, 1, 1, 0, 0]`
+
+### ❌ Fatal Flaw for Git Notes
+*   **Context Blindness:** Look at index `1` (the word `bank`). Both vectors contain a `1`. 
+*   **False Similarity:** Because BOW treats every token independently, a cosine similarity calculation will falsely indicate these sentences are structurally related through `bank`, completely missing that a "river bank" and a "financial bank" are entirely different concepts.
+
+---
+
+## 3. TF-IDF (Term Frequency-Inverse Document Frequency)
+Weights tokens by multiplying how often they appear in a document (**TF**) against how rare they are across the entire dataset (**IDF**). 
+
+### Mathematical Intuition
+$$\text{TF-IDF} = \text{TF} \times \log\left(\frac{\text{Total Documents}}{\text{Documents containing word}}\right)$$
+
+### Mock Vector Representations
+*Assumed Corpus Behavior: "bank" appears in both sentences (Common $\rightarrow$ Low IDF = 0.15). Specialized words like "muddy" or "loan" only appear in one sentence each (Rare $\rightarrow$ High IDF = 1.2).*
+
+*   **Sentence A Vector:** `[0.0, 0.15, 0.0, 0.0, 1.2, 1.2]` *(Order: approved, bank, cash, loan, muddy, river)*
+*   **Sentence B Vector:** `[1.2, 0.15, 1.2, 1.2, 0.0, 0.0]`
+
+### ⚠️ Evaluation for Git Notes
+*   **Improvement:** It successfully minimizes the impact of the shared word `bank` because it occurs in both contexts. It forces the model to focus on the unique keywords (`river` vs `loan`).
+*   **Remaining Flaw:** It still cannot assign different semantic meanings to the word `bank`. The token `bank` is still tied to a single index, forcing it to have the same core value.
+
+---
+
+## 4. Word2Vec (Continuous Bag-of-Words / Skip-Gram)
+Generates dense, low-dimensional vectors (e.g., 100-300 dimensions) trained step-by-step using a local sliding context window. Sentence representations are built by averaging individual word vectors.
+
+### Mechanics & Local Optimization
+Word2Vec learns by predicting a target word from its immediate neighbors (or vice versa).
+
+*   **Sentence A Processing:** The sliding window binds `bank` strongly to `river` and `muddy`.
+*   **Sentence B Processing:** The sliding window binds `bank` strongly to `approved` and `loan`.
+
+### Mock 3D Vectors (Individual vs. Sentence Average)
+*   $\vec{v}_{\text{river}} = [0.12, 0.89, -0.45]$
+*   $\vec{v}_{\text{loan}} = [-0.78, -0.23, 0.91]$
+*   $\vec{v}_{\text{bank}} = [-0.15, 0.22, 0.11]$ *(A single shifting vector)*
+
+$$\vec{v}_{\text{Sentence A (Avg)}} = [0.08, 0.45, -0.21] \quad \longleftrightarrow \quad \vec{v}_{\text{Sentence B (Avg)}} = [-0.41, -0.05, 0.48]$$
+
+### ❌ Fatal Flaw for Git Notes
+*   **The Overwrite Problem:** Word2Vec updates weights incrementally via online gradient descent. If your training dataset suddenly feeds Word2Vec 10,000 sentences about financial loans, the single vector for `bank` will be drastically pulled toward financial coordinates, effectively "erasing" or distorting its geographic relationship to rivers.
+
+---
+
+## 5. GloVe (Global Vectors for Word Representation)
+Generates dense vectors by performing global matrix factorization on an entire corpus's log-co-occurrence matrix. 
+
+### Mechanics & Global Optimization
+GloVe bypasses step-by-step streaming. It constructs a massive global table tracking how often every word pairs with every other word across the whole corpus before training even begins.
+
+Instead of a single window pulling the vector back and forth, GloVe’s loss function forces the vector for `bank` to find a static, globally optimized spatial position that simultaneously balances its ratios with *all* its co-occurring clusters.
+
+### Mock 3D Vectors
+*   $\vec{v}_{\text{bank}} = [-0.31, 0.28, 0.25]$ *(Mathematically balanced position)*
+
+###  Key Advantage for Git Notes
+*   **Subspace Stability:** While GloVe still yields a single static vector for `bank` (meaning it cannot dynamically change per sentence like modern Transformers), its position is mathematically robust. The vector is constrained by global co-occurrence ratios, preventing it from being radically overwritten or skewed by a sudden local cluster of training data. 
+*   **Frequent Word Safety:** High-frequency pairings (e.g., `the` + `bank`) are systematically capped by GloVe's weighting function, ensuring meaningful relationships (`bank` + `river` and `bank` + `loan`) drive the final embedding layout.
+
 
 ## 📊 1. Evolutionary Roadmap: BoW vs. TF-IDF vs. Word Embeddings
 
