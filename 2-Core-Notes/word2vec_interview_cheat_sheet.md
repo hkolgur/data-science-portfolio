@@ -21,7 +21,9 @@
 ## ⚖️ 2. Word2Vec: CBOW vs. Skip-gram
 
 CBOW Architecture:     [Context Words]  ───►  [Predict Target Word]
+
 Skip-gram Architecture: [Target Word]   ───►  [Predict Context Words]
+
 | Feature | Continuous Bag of Words (CBOW) | Skip-gram |
 | :--- | :--- | :--- |
 | **Objective** | Predicts 1 **target** word from multiple **context** words. | Predicts multiple **context** words from 1 **target** word. |
@@ -40,13 +42,14 @@ Skip-gram Architecture: [Target Word]   ───►  [Predict Context Words]
 ## 🚀 3. Word2Vec Optimization & Math Mechanics
 
 ### Solving the Softmax Bottleneck
-Computing standard Categorical Cross-Entropy Loss over a massive vocabulary \(V\) is computationally expensive (\(O(\vert{}V\vert{})\)). Word2Vec solves this via:
-1. **Hierarchical Softmax (`hs=1`):** Uses a binary Huffman tree to evaluate probabilities, cutting final layer complexity down to \(O(\log_2 \vert{}V\vert{})\).
-2. **Negative Sampling (`negative > 0`):** Instead of calculating updates for all vocabulary elements, it updates weights only for the true target word and a tiny random sample (5–20) of incorrect ("negative") words. This turns a massive multi-class challenge into fast binary logistic regression.
+Computing standard Categorical Cross-Entropy Loss over a massive Vocabulary ($V$) is computationally expensive ($O(|V|)$), cutting final layer complexity down to $O(\log_2 |V|)$. Word2Vec solves this via:
+1. **Hierarchical Softmax (`hs=1`):** Uses a binary Huffman tree to evaluate probabilities, cutting final layer complexity down to $O(\log_2 |V|)$).
+2. 
+3. **Negative Sampling (`negative > 0`):** Instead of calculating updates for all vocabulary elements, it updates weights only for the true target word and a tiny random sample (5–20) of incorrect ("negative") words. This turns a massive multi-class challenge into fast binary logistic regression.
 
 ### Subsampling Frequent Words
 High-frequency words (*"the"*, *"is"*) crowd out learning opportunities for rare tokens. Word2Vec dynamically drops them using a probability formula based on word frequency:
-\[P(w) = 1 - \sqrt{\frac{\text{threshold}}{\text{freq}(w)}}\]
+$$P(w) = 1 - \sqrt{\frac{\text{threshold}}{\text{freq}(w)}}$$
 
 ---
 
