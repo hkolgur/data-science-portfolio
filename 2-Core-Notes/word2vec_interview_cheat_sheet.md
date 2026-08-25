@@ -71,6 +71,18 @@ $$P(w) = 1 - \sqrt{\frac{\text{threshold}}{\text{freq}(w)}}$$
 ---
 # GloVe vs. Word2Vec: Handling High-Frequency Words
 
+To see the difference, imagine a small corpus with two sentences:"
+
+The chef made the soup."
+
+"The chef served the steak."
+
+Flooded Training: The model encounters (chef, the), (made, the), (soup, the), (served, the) over and over again.Overwritten
+
+Updates: Word2Vec updates word vectors incrementally through gradient descent. Because "the" appears in almost every window, its vector gets updated constantly.
+
+Drowned Meanings: The heavy gradient updates from "the" drown out the rare, meaningful connections, like (chef, soup) or (chef, steak).
+
 ## ❌ Word2Vec (Sliding Window Failure)
 * **Incremental Updates:** Slides a local context window step-by-step across the text.
 * **Flooded Training:** High-frequency stop words (e.g., "the", "is") generate massive numbers of repetitive training pairs.
@@ -79,5 +91,8 @@ $$P(w) = 1 - \sqrt{\frac{\text{threshold}}{\text{freq}(w)}}$$
 ##  GloVe (Global Matrix Control)
 * **Global Counting:** Compresses repetitions into a single global co-occurrence matrix before training.
 * **Capped Weighting:** Applies a weighting function $f(X_{ij}) = \min\left(\left(\frac{X_{ij}}{x_{max}}\right)^\alpha, 1.0\right)$ to the raw counts.
-* **Neutralized Power:** Caps the maximum weight at `1.0` once counts hit a threshold ($x_{max}$), preventing massive frequencies from scaling infinitely.
+
+  
+* **Neutralized Power:** Caps the maximum weight at `1.0` once counts hit a threshold ($x_{max}$), preventing massive frequencies from scaling infinitely.The pair (chef, soup) might get a weight of 0.2. Because 1.0 is not much larger than 0.2, the high-frequency word loses its ability to dominate the mathematical updates.
+  
 * **Balanced Learning:** Ensures common pairs cannot mathematically dominate the loss function, leaving room for rare words to influence the vectors.
