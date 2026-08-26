@@ -10,6 +10,9 @@ df['col'].value_counts()     # Count unique values (useful for target classes)
 df.nunique()                 # Count of unique values per column
 df.duplicated().sum()        # check for duplicates
 df[df.duplicated()]          #Shows all duplicate rows (keeps the first occurrence hidden)
+tesla_df['Date'] = pd.to_datetime(tesla_df['Date']) # convert to datetime field
+tesla_df.set_index('Date', inplace=True) # set Date column as index of the dataframe
+tesla_df.sort_index(ascending=True, inplace=True) #sort the df based on this Date index
 
 ```
 
