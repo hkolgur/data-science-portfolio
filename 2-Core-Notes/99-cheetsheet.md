@@ -37,16 +37,88 @@ df.drop(columns=['col1', 'col2'], inplace=True)# Drop columns
 #Basic EDA commands 
 plt.figure(figsize=(8,6))
 
+# Seaborn Plotting Cheat Sheet
+
+Seaborn groups plots by **statistical purpose** into 3 Master Functions (`relplot`, `displot`, `catplot`). Using these figure-level functions is recommended because changing the plot type is as simple as updating the `kind` parameter.
+
+---
+
+## 🚀 The Big Three (Master Functions)
+
+### 1. Relational Plots (`sns.relplot`)
+*Use case: Analyzing relationships between continuous variables.*
+*   `kind="scatter"` (Default): Spots trends and clusters.
+*   `kind="line"`: Tracking changes over time or continuous intervals.
+
+```python
+import seaborn as sns
+
+sns.relplot(data=df, x="col_x", y="col_y", kind="scatter", hue="category")
+```
+
+### 2. Distribution Plots (`sns.displot`)
+*Use case: Visualizing data spread, shape, and frequency.*
+*   `kind="hist"` (Default): Classic binned frequency counts.
+*   `kind="kde"`: Smooth probability density curve.
+*   `kind="ecdf"`: Cumulative proportions.
+
+```python
+sns.displot(data=df, x="col_x", kind="hist", kde=True) # kde=True adds the line overlay
+```
+
+### 3. Categorical Plots (`sns.catplot`)
+*Use case: Comparing numeric metrics across different categorical groups.*
+*   **Scatter styles:** `kind="strip"` (default), `kind="swarm"` (no overlap)
+*   **Distribution styles:** `kind="box"`, `kind="violin"`, `kind="boxen"`
+*   **Estimation styles:** `kind="bar"` (means), `kind="count"` (frequencies), `kind="point"`
+
+```python
+sns.catplot(data=df, x="category_col", y="numeric_col", kind="box")
+```
+
+---
+
+## 🎛️ Special Purpose Plots (Standalone Functions)
+
+These plots do not route through the master functions and must be called directly.
+
+### Regression Plots (Trend Lines)
+Fits a linear regression model automatically over a scatter plot.
+```python
+sns.lmplot(data=df, x="col_x", y="col_y", hue="category")
+```
+
+### Matrix Plots (Grids)
+Requires data to be structured as a matrix (e.g., a `.corr()` matrix).
+```python
+# Heatmap: Visualizes 2D grid intensities
+sns.heatmap(df.corr(), annot=True, cmap="coolwarm")
+
+# Clustermap: Heatmap + hierarchical clustering dendrograms
+sns.clustermap(df.corr())
+```
+
+---
+
+## 💡 Quick Tips for Parameters
+*   `data`: Your Pandas DataFrame (`data=df`).
+*   `x`, `y`: Column names as strings (`x="age"`).
+*   `hue`: Groups data visually using different **colors**.
+*   `size`: Groups data visually using different **marker sizes**.
+*   `style`: Groups data visually using different **marker styles** (dots, crosses) or line styles (dashed, solid).
+*   `row`, `col`: Splits the data into a grid of **subplots** based on a categorical variable (Only works in `relplot`, `displot`, `catplot`, and `lmplot`).
+
+
 #Histogram .continuous numerical values distributed across ranges
 sns.histplot(data=df,x='bmi',bins='fd',kde=True) #'fd'-IQRbase, 'scott' sdev based
 plt.axvline(df['bmi'].mean(), color='red', linestyle='--', label='Mean') #to see vertical line on mean
 plt.axvline(df['bmi'].median(), color='blue', linestyle=':', label='Median')
 plt.legend()
 
-#categorical groups /count frequency/class-imbalance
+#categorical groups /count frequency/class-imbalance . count plot only needs x axis categorial variable and y axis is automatically counted
 sns.countplot(data=df, x='gender_col', hue='target_col') 
 
-#sum/mean/median of numeric col(y) vs cat col(x).estimator="mean"
+#sum/mean/median of numeric col(y) vs cat col(x).estimator="mean".Bplot needs x axis categorial variable and y axis aggregate metric.default mean
 sns.barplot(data=df,x='category_col', y='numeric_value_col')
 
 #pie chart.need list as numbers, names 
