@@ -388,3 +388,254 @@ safe_pipeline.fit(X_train, y_train)
 # When you run predict, it automatically bypasses SMOTE (keeping test data pure)
 y_pred = safe_pipeline.predict(X_test)
 ```
+
+# Scikit-Learn: `fit` vs `fit_transform` — Interview Cheat Sheet
+
+> Quick reference for knowing which estimators reshape `X` and which only learn a mapping `X → y`.
+
+---
+
+## 1. The Mental Model (answer in 10 seconds)
+
+Ask one question: **does calling this produce a new feature matrix?**
+
+| Question | Answer | Methods you get |
+|---|---|---|
+| Does it output a modified `X`? | Yes | `fit`, `transform`, `fit_transform` |
+| Does it output labels/values for `y`? | Yes | `fit`, `predict` (`predict_proba`, `score`) |
+| Both? | Rare but real | all of the above (KMeans, LDA, Birch, PLS) |
+| Neither — it only tags the rows it was trained on? | Yes | `fit`, `fit_predict` (DBSCAN, LOF) |
+
+Underneath, this is just mixin inheritance:
+
+- `TransformerMixin` → gives you `fit_transform`
+- `ClassifierMixin` / `RegressorMixin` → gives you `score`, pairs with `predict`
+- `ClusterMixin` → gives you `fit_predict`
+
+An estimator can inherit more than one. **That is the source of every gotcha below.**
+
+```
+[X] ──► fit_transform() ──► [X']          # Transformer
+[X, y] ──► fit() ──► [weights] ──► predict(X) ──► [ŷ]   # Predictor
+```
+
+---
+
+## 2. Category A — Has `fit_transform` (Transformers)
+
+### 2.1 Scalers & Normalizers
+
+| Class | What it does | Stateful? |
+|---|---|---|
+| `StandardScaler` | Mean → 0, variance → 1 | Yes (learns mean/std) |
+| `MinMaxScaler` | Squashes to a fixed range, default `[0, 1]` | Yes (learns min/max) |
+| `RobustScaler` | Scales by IQR/median — outlier resistant | Yes (learns quartiles) |
+| `MaxAbsScaler` | Divides by max absolute value, preserves sparsity | Yes |
+| `Normalizer` | Scales each **row** to unit norm | **No — stateless** |
+| `Binarizer` | Thresholds values to 0/1 | **No — stateless** |
+| `FunctionTransformer` | Wraps any callable (e.g. `np.log1p`) | **No by default** |
+
+> **Row vs column is the trick here.** Every scaler above works **column-wise** except `Normalizer`, which works **row-wise**. That is why `Normalizer` is stateless — it needs nothing from the training set, so it has no leakage risk.
+
+### 2.2 Encoders & Feature Generators
+
+| Class | Operates on | Notes |
+|---|---|---|
+| `OneHotEncoder` | `X` (2D) | Sparse binary columns. Always set `handle_unknown='ignore'` in production. |
+| `OrdinalEncoder` | `X` (2D) | Categories → integers, for **features**. |
+| `LabelEncoder` | `y` (1D only) | Signature is `fit_transform(y)` — it takes **one** argument, not `(X, y)`. |
+| `LabelBinarizer` | `y` (1D) | One-hot for the target. |
+| `PolynomialFeatures` | `X` | Generates `x₁²`, `x₁x₂`, … Column count explodes fast. |
+| `KBinsDiscretizer` | `X` | Continuous → binned ordinal/one-hot. |
+
+### 2.3 Dimensionality Reduction & Text
+
+| Class | Notes |
+|---|---|
+| `PCA` | Unsupervised linear projection maximizing variance. Also has `inverse_transform`. |
+| `TruncatedSVD` | Same idea but works on **sparse** matrices → the standard choice after TF-IDF ("LSA"). |
+| `LinearDiscriminantAnalysis` | **Supervised.** Has `transform` *and* `predict` — see gotchas. |
+| `CountVectorizer` | Raw text → token count matrix. |
+| `TfidfVectorizer` | Raw text → TF-IDF weighted matrix. |
+| `LatentDirichletAllocation` | Topic modeling. Transformer only — **a completely different "LDA."** |
+
+### 2.4 Imputers
+
+`SimpleImputer` (mean/median/most_frequent/constant), `KNNImputer` (neighbor-based), `IterativeImputer` (models each feature from the others; still experimental — needs `enable_iterative_imputer`).
+
+### 2.5 Feature Selectors ← commonly forgotten category
+
+`SelectKBest`, `SelectPercentile`, `VarianceThreshold`, `RFE`, `RFECV`, `SelectFromModel`.
+
+They **drop columns**, so they are transformers. `SelectFromModel(RandomForestClassifier())` is the classic "wrap a predictor to make a transformer" answer.
+
+### 2.6 Meta / Composition
+
+`Pipeline`, `ColumnTransformer`, `FeatureUnion`.
+
+> `Pipeline` exposes `transform`/`fit_transform` **only if its final step is a transformer**, and `predict` **only if its final step is a predictor**. It borrows the API of its last step.
+
+---
+
+## 3. Category B — `fit` + `predict` only (Predictors)
+
+**Regression:** `LinearRegression`, `Ridge`, `Lasso`, `ElasticNet`, `SVR`, `RandomForestRegressor`, `GradientBoostingRegressor`, `HistGradientBoostingRegressor`, `XGBRegressor`.
+
+**Classification:** `LogisticRegression`, `SVC`, `RandomForestClassifier`, `GradientBoostingClassifier`, `KNeighborsClassifier`, `GaussianNB`, `DecisionTreeClassifier`, `MLPClassifier`.
+
+Small API notes worth having ready:
+
+- `SVC` has **no** `predict_proba` unless you pass `probability=True` (which triggers internal cross-validation and is slow).
+- Tree ensembles expose `feature_importances_`, but that is an **attribute**, not a `transform`. To actually drop columns you still need `SelectFromModel`.
+- `fit` returns `self`, which is what makes `model.fit(X, y).predict(X_test)` chain.
+
+---
+
+## 4. ⚠️ The Gotchas (this is what actually gets asked)
+
+### 4.1 KMeans **does** have `fit_transform` — correcting a common myth
+
+This is the single most-missed one, and it's the opposite of what most cheat sheets say.
+
+```python
+km = KMeans(n_clusters=3)
+X_dist = km.fit_transform(X)   # shape: (n_samples, n_clusters)
+```
+
+`KMeans.transform` projects each sample into **cluster-distance space** — column *j* is the Euclidean distance from that sample to centroid *j*. So KMeans has the full set: `fit`, `transform`, `fit_transform`, `predict`, `fit_predict`.
+
+This is a real, useful technique: cluster distances as engineered features feeding a downstream classifier.
+
+`MiniBatchKMeans` and `Birch` behave the same way.
+
+### 4.2 The clustering split — who can handle unseen data?
+
+| Model | `transform` | `predict` | `fit_predict` | Why |
+|---|---|---|---|---|
+| `KMeans` | ✅ | ✅ | ✅ | Stores centroids → new points can be assigned |
+| `Birch` | ✅ | ✅ | ✅ | Stores a CF-tree |
+| `GaussianMixture` | ❌ | ✅ | ✅ | Stores distributions, but doesn't reshape `X` |
+| `DBSCAN` | ❌ | ❌ | ✅ | Density is local to the training set — no model to reuse |
+| `AgglomerativeClustering` | ❌ | ❌ | ✅ | Hierarchy is built over the given points only |
+
+**One-liner:** *"Centroid- and distribution-based clusterers can score new data; density- and linkage-based ones cannot, which is why they only expose `fit_predict`."*
+
+### 4.3 Anomaly detection
+
+- `IsolationForest` — `fit`, `predict`, `fit_predict`, `decision_function`. Returns `1` / `-1`, not `0` / `1`.
+- `LocalOutlierFactor` — `fit_predict` only by default. It gains `predict` **only** if constructed with `novelty=True`.
+
+### 4.4 Estimators that are both transformer and predictor
+
+| Model | Why |
+|---|---|
+| `LinearDiscriminantAnalysis` | Reduces to ≤ `n_classes - 1` dims **and** classifies |
+| `KMeans` / `Birch` | Cluster-distance space **and** cluster assignment |
+| `PLSRegression` | Projects to latent components **and** regresses |
+
+### 4.5 "It has `fit` but neither of the others"
+
+`NearestNeighbors` — `fit` then `kneighbors()`. No `predict`, no `transform`. It's a lookup index, not a model.
+
+---
+
+## 5. The `.transform()` Discipline
+
+```python
+# ✅ Correct
+X_train_s = scaler.fit_transform(X_train)
+X_test_s  = scaler.transform(X_test)
+
+# ❌ Leakage — test statistics bleed into the scaler
+X_test_s = scaler.fit_transform(X_test)
+```
+
+Note this only matters for **stateful** transformers. `Normalizer` and `FunctionTransformer(np.log1p)` learn nothing from the training set, so calling `fit_transform` on the test set is harmless there — but use `transform` uniformly anyway so the habit never breaks.
+
+Also: transformers accept `fit(X, y=None)`. The `y` is ignored, and exists purely so `Pipeline` can pass the same signature to every step.
+
+---
+
+## 6. Interview Defense Scripts
+
+**On leakage:**
+> "I call `fit_transform` only on training data. Validation and test data get `.transform()` so no distribution statistics from unseen data leak into the fitted parameters. With cross-validation I put the transformer inside a `Pipeline` so it's refit on each fold's training split rather than once on the full set."
+
+**On pipelines:**
+> "In production I wrap transformers and the estimator in a `Pipeline`, with `ColumnTransformer` handling numeric and categorical branches. During `pipeline.fit()` intermediate steps get `fit_transform`; during `predict()` they get `transform`. That makes the leakage rule structural instead of something I have to remember."
+
+**On `fit_transform` efficiency** — *state this precisely, the sloppy version is wrong:*
+> "By default `TransformerMixin.fit_transform` is literally `fit(X).transform(X)`, so there's no automatic speedup. But some estimators override it for a real one — `PCA` reuses the SVD it already computed, and `CountVectorizer`/`TfidfVectorizer` avoid a second pass over the corpus. So I prefer `fit_transform` on training data: never slower, sometimes meaningfully faster, and clearer about intent."
+
+**If asked "does KMeans have `transform`?"**
+> "Yes — it maps samples into cluster-distance space, one column per centroid. People assume it doesn't because clustering feels like a prediction task, but KMeans inherits from both `ClusterMixin` and `TransformerMixin`."
+
+---
+
+## 7. Reference Python
+
+```python
+import numpy as np
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.impute import SimpleImputer
+from sklearn.cluster import KMeans
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split, cross_val_score
+
+num_cols = ["age", "income"]
+cat_cols = ["city", "plan"]
+
+numeric = Pipeline([
+    ("impute", SimpleImputer(strategy="median")),
+    ("scale",  StandardScaler()),
+])
+
+categorical = Pipeline([
+    ("impute", SimpleImputer(strategy="most_frequent")),
+    ("ohe",    OneHotEncoder(handle_unknown="ignore")),
+])
+
+pre = ColumnTransformer([
+    ("num", numeric,     num_cols),
+    ("cat", categorical, cat_cols),
+])
+
+clf = Pipeline([
+    ("pre",   pre),
+    ("model", RandomForestClassifier(random_state=0)),
+])
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
+
+clf.fit(X_train, y_train)          # transformers: fit_transform
+clf.predict(X_test)                # transformers: transform  ← leakage-safe
+
+# Refit inside every fold — the reason to use a Pipeline at all
+cross_val_score(clf, X_train, y_train, cv=5)
+```
+
+```python
+# KMeans as a feature generator, not a predictor
+km = KMeans(n_clusters=8, n_init="auto", random_state=0)
+dist_train = km.fit_transform(X_train)   # (n_samples, 8)
+dist_test  = km.transform(X_test)        # .transform, not .fit_transform
+```
+
+---
+
+## 8. One-Page Recall Table
+
+| Estimator | `transform` | `predict` | `fit_predict` |
+|---|:--:|:--:|:--:|
+| `StandardScaler` / `PCA` / `SimpleImputer` | ✅ | ❌ | ❌ |
+| `TfidfVectorizer` / `SelectKBest` | ✅ | ❌ | ❌ |
+| `LogisticRegression` / `RandomForest` / `SVC` | ❌ | ✅ | ❌ |
+| `KMeans` / `Birch` | ✅ | ✅ | ✅ |
+| `LinearDiscriminantAnalysis` | ✅ | ✅ | ❌ |
+| `GaussianMixture` | ❌ | ✅ | ✅ |
+| `IsolationForest` | ❌ | ✅ | ✅ |
+| `DBSCAN` / `AgglomerativeClustering` | ❌ | ❌ | ✅ |
+| `LocalOutlierFactor` | ❌ | only if `novelty=True` | ✅ |
+| `NearestNeighbors` | ❌ | ❌ | ❌ |
