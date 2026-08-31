@@ -33,13 +33,13 @@ df.rename(columns={'old':'new'}, inplace=True) # Rename columns
 df.drop(columns=['col1', 'col2'], inplace=True)# Drop columns
 ```
 ## EDA
-```python
+
 #Basic EDA commands 
-plt.figure(figsize=(8,6))
 
 # Seaborn Plotting Cheat Sheet
 
-Seaborn groups plots by **statistical purpose** into 3 Master Functions (`relplot`, `displot`, `catplot`). Using these figure-level functions is recommended because changing the plot type is as simple as updating the `kind` parameter.
+Seaborn groups plots by **statistical purpose**  into 3 Master Functions (`relplot`, `displot`, `catplot`).
+Using these figure-level functions is recommended because changing the plot type is as simple as updating the `kind` parameter.
 
 ---
 
@@ -108,7 +108,8 @@ sns.clustermap(df.corr())
 *   `style`: Groups data visually using different **marker styles** (dots, crosses) or line styles (dashed, solid).
 *   `row`, `col`: Splits the data into a grid of **subplots** based on a categorical variable (Only works in `relplot`, `displot`, `catplot`, and `lmplot`).
 
-
+```python
+plt.figure(figsize=(8,6))
 #Histogram .continuous numerical values distributed across ranges
 sns.histplot(data=df,x='bmi',bins='fd',kde=True) #'fd'-IQRbase, 'scott' sdev based
 plt.axvline(df['bmi'].mean(), color='red', linestyle='--', label='Mean') #to see vertical line on mean
