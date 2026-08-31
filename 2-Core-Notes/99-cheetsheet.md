@@ -154,7 +154,7 @@ import ast
 # 1. Convert string representation of lists "['A', 'B']" into real lists
 df['list_col'] = df['string_col'].apply(ast.literal_eval)
 
-# 2. Explode a column of lists into individual rows
+# 2. Explode a column of lists into individual rows. uid 101 hobbies [reading,dancing,surfing] -> becomes 3 rows for 101 
 df_exploded = df.explode('list_col')
 
 # 3. String cleanup
