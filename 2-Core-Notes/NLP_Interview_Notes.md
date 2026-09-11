@@ -298,6 +298,20 @@ Doc2: 1.41    0.00   0.00
 Both these look completely unrelated.(pizza common one gone)
 
 Then each row is **L2-normalised**. The `+1` at the end guarantees terms appearing in every document still get a small non-zero weight instead of being deleted.
+### ⚖️ Where L2 Normalization is Used
+
+L2 Normalization is applied as the **final step** of the TF-IDF pipeline after computing $\text{TF} \times \text{IDF}$.
+
+#### 🎯 Purpose
+It scales all document vectors to a length of 1. This ensures that **long documents and short documents can be compared equally**, preventing long texts from dominating the machine learning model.
+
+#### 🧮 The Formula
+For a raw TF-IDF vector $v = [x_1, x_2, ..., x_n]$, the L2 normalized vector element $x_i'$ is calculated as:
+
+$$x_i' = \frac{x_i}{\sqrt{x_1^2 + x_2^2 + \dots + x_n^2}}$$
+
+#### 💡 The Core Benefit
+Once L2 normalization is applied, calculating the **Cosine Similarity** between two text vectors simplifies to a basic **Dot Product** ($\vec{a} \cdot \vec{b}$), drastically speeding up similarity searches and clustering algorithms.
 
 **Fully worked example** (N=2, corpus above):
 
