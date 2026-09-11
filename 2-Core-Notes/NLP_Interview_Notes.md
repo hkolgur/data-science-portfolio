@@ -234,6 +234,12 @@ Treat contiguous windows as single features.
 
 > 🪤 **Trap:** "How do you capture 'New York' as one concept?" → bigrams, or collocation detection (`gensim.models.Phrases` using PMI thresholds), or just use a subword Transformer.
 
+-   Capture both single words (unigrams) AND word pairs (bigrams)
+     vectorizer = CountVectorizer(ngram_range=(1, 2))
+    
+-  Initialize TfidfVectorizer for unigrams and bigrams
+   tfidf = TfidfVectorizer(ngram_range=(1, 2)) .
+   tfidf_matrix = tfidf.fit_transform(documents) -Learn vocabulary and return the normalized TF-IDF matrix . tfidf.get_feature_names_out()
 ---
 
 ### 2.4 TF-IDF — the workhorse
