@@ -309,6 +309,27 @@ It scales all document vectors to a length of 1. This ensures that **long docume
 For a raw TF-IDF vector $v = [x_1, x_2, ..., x_n]$, the L2 normalized vector element $x_i'$ is calculated as:
 
 $$x_i' = \frac{x_i}{\sqrt{x_1^2 + x_2^2 + \dots + x_n^2}}$$
+#### 🧮 Step-by-Step L2 Normalization Calculation
+
+Using a sample raw $\text{TF} \times \text{IDF}$ vector with 3 features:
+
+##### 1. The Raw Vector ($\vec{v}$)
+$$\vec{v} = [1.41, 1.41, 1.00]$$
+
+##### 2. Calculate the Vector Length (Euclidean / L2 Norm)
+Square all terms, sum them up, and take the square root:
+
+$$\text{Length} = \sqrt{1.41^2 + 1.41^2 + 1.00^2}$$
+$$\text{Length} = \sqrt{1.9881 + 1.9881 + 1.0000}$$
+$$\text{Length} = \sqrt{4.9762} \approx 2.2307$$
+
+##### 3. The Normalization Step
+Divide every original weight in the vector by the calculated length ($2.2307$):
+
+$$\vec{v}_{\text{normalized}} = \left[ \frac{1.41}{2.2307}, \quad \frac{1.41}{2.2307}, \quad \frac{1.00}{2.2307} \right]$$
+
+$$\vec{v}_{\text{normalized}} \approx [0.632, \quad 0.632, \quad 0.448]$$
+
 
 #### 💡 The Core Benefit
 Once L2 normalization is applied, calculating the **Cosine Similarity** between two text vectors simplifies to a basic **Dot Product** ($\vec{a} \cdot \vec{b}$), drastically speeding up similarity searches and clustering algorithms.
