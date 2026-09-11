@@ -182,6 +182,7 @@ The vectors are **mutually orthogonal**, so the geometry carries no semantics. I
 ### 2.2 Bag of Words (BoW)
 
 **Intuition:** shake a document until word order falls out. Keep only *which* words appeared and *how many times*.
+- Implementation of the concept BOW is CountVectorizer. (It 1. Tokenization (Splitting words) ,2.Vocabulary Building (Creating the dictionary),3. Encoding (Counting occurrences) . CV fits under Frequency Variant of BOW.
 
 **Variants:**
 
