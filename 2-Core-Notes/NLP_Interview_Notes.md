@@ -256,7 +256,8 @@ $$\text{TF-IDF}(t, d, D) = \text{tf}(t,d) \times \log\frac{N}{\text{df}(t)}$$
 
 **scikit-learn's exact formula** (know this — interviewers check):
 
-$$\text{idf}(t) = \ln\!\left(\frac{1+N}{1+\text{df}(t)}\right) + 1 \quad\text{(smooth\_idf=True)}$$
+$$\text{idf}(t) = \ln\left(\frac{1+N}{1+\text{df}(t)}\right) + 1 \quad \text{(smooth\_idf=True)}$$
+
 
 Then each row is **L2-normalised**. The `+1` at the end guarantees terms appearing in every document still get a small non-zero weight instead of being deleted.
 
