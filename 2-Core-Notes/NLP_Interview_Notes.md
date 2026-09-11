@@ -292,6 +292,10 @@ Consider a 2-document corpus:
 | **Without outer `+1`** | 1.41 | 1.41 | **0.00** | **Context Lost:** `"pizza"` is wiped out. The model sees the documents as completely unrelated. |
 | **With scikit-learn's `+1`** | 1.41 | 1.41 | **1.00** | **Context Kept:** `"pizza"` drops to a minimum weight of `1.00`, preserving the shared context. |
 
+Doc1: 0.00    1.41   0.00 
+Doc2: 1.41    0.00   0.00 
+
+Both these look completely unrelated.(pizza common one gone)
 
 Then each row is **L2-normalised**. The `+1` at the end guarantees terms appearing in every document still get a small non-zero weight instead of being deleted.
 
