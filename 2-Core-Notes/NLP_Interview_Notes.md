@@ -260,6 +260,38 @@ $$\text{idf}(t) = \ln\left(\frac{1+N}{1+\text{df}(t)}\right) + 1$$
 
 Where `smooth_idf=True`.
 
+N: The total number of documents in your dataset.
+df(t): The document frequency (the number of documents containing term t.
+
+- Adding 1 in numerator and denominator - Purpose: To prevent a "Division by Zero" error when new document is seen in test that is not in train. we add in num and denominator to mimic it as an imaginary document .
+- Adding 1 to log terms avoids  common words from being completely deleted
+
+### 📝 Why scikit-learn adds `+1` outside the logarithm
+
+In scikit-learn's default implementation (`smooth_idf=True`), the formula is:
+
+$$\text{idf}(t) = \ln\left(\frac{1+N}{1+\text{df}(t)}\right) + 1$$
+
+The outer `+1` prevents words that appear in **every single document** from being completely deleted from your dataset.
+
+#### 🔍 The Problem (Without the outer `+1`)
+If a word (e.g., `"pizza"`) appears in all documents, then $\text{df}(t) = N$. 
+Without the $+1$, the math zeroes out:
+
+$$\text{idf}(\text{"pizza"}) = \ln\left(\frac{1+N}{1+N}\right) = \ln(1) = 0$$
+
+Since $\text{TF-IDF} = \text{TF} \times \text{IDF}$, any word multiplied by an IDF of `0` is completely erased.
+
+#### 📊 Impact on the Data Matrix
+Consider a 2-document corpus:
+* **Doc 1:** *"love pizza"*
+* **Doc 2:** *"eat pizza"*
+
+| Scenario | `eat` | `love` | `pizza` | Consequence |
+| :--- | :---: | :---: | :---: | :--- |
+| **Without outer `+1`** | 1.41 | 1.41 | **0.00** | **Context Lost:** `"pizza"` is wiped out. The model sees the documents as completely unrelated. |
+| **With scikit-learn's `+1`** | 1.41 | 1.41 | **1.00** | **Context Kept:** `"pizza"` drops to a minimum weight of `1.00`, preserving the shared context. |
+
 
 Then each row is **L2-normalised**. The `+1` at the end guarantees terms appearing in every document still get a small non-zero weight instead of being deleted.
 
