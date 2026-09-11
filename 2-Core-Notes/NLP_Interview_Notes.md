@@ -254,6 +254,12 @@ $$\text{TF-IDF}(t, d, D) = \text{tf}(t,d) \times \log\frac{N}{\text{df}(t)}$$
 
 **Common TF variants:** raw count, `count/len(d)`, or **log-normalised** $1 + \log(\text{count})$ (dampens the fact that appearing 100× isn't 100× more relevant than 1×).
 
+scikit-learn's exact formula (know this — interviewers check):
+
+$$\text{idf}(t) = \ln\left(\frac{1+N}{1+\text{df}(t)}\right) + 1$$
+
+Where `smooth_idf=True`.
+
 **scikit-learn's exact formula** (know this — interviewers check):
 
 $$\text{idf}(t) = \ln\left(\frac{1+N}{1+\text{df}(t)}\right) + 1 \quad \text{(smooth\_idf=True)}$$
