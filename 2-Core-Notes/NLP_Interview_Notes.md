@@ -712,6 +712,46 @@ ft.wv["kubernetes"]              # ✅ works even if never in training data
 | Training cost | none | none | none | low | medium | medium | medium | very high |
 | Interpretable | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
+# NLP Interview Cheat Sheet: Text Representations & Embeddings
+
+## Part 1: The Linguistic Proof Table
+*Use this to answer interview questions like: "Give me a concrete example of a sentence where Bag-of-Words fails but a Transformer succeeds."*
+
+| Text Scenario / Example | Bag of Words (BoW) & TF-IDF | Static Embeddings (Word2Vec / GloVe) | Subword Models (FastText) | Contextual Transformers (BERT) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Word Order Swap**<br>• *"Dog bit man"*<br>• *"Man bit dog"* | ❌ **Fails completely.**<br>Both generate identical vector representations because counts are identical. | ❌ **Fails.**<br>Summing or averaging the word vectors results in the exact same mathematical sentence vector. | ❌ **Fails.**<br>Averages character-level vectors, but the sentence-level pool remains identical. |  **Solved.**<br>Uses **Positional Encodings** to assign a unique mathematical signature to a word's exact index in a sequence. |
+| **Polysemy (Same word, different meaning)**<br>• *"River bank"*<br>• *"Money bank"* | ❌ **Fails.**<br>Treats "bank" as one single token, averaging both meanings into a single index. | ❌ **Fails.**<br>Provides a **static lookup dictionary**. "Bank" has exactly one vector representation. | ❌ **Fails.**<br>Still uses a static lookup dictionary, just built from smaller character n-grams. |  **Solved.**<br>Generates **dynamic embeddings** at runtime. The vector for "bank" shifts based on the surrounding context. |
+| **Synonyms & Semantics**<br>• *"Vicious canine"*<br>• *"Angry dog"* | ❌ **Fails.**<br>Treats them as 4 completely unrelated dimensions with zero shared overlap. |  **Solved.**<br>Identifies that "canine" and "dog" regularly appear in similar contexts, placing them near each other in space. |  **Solved.**<br>Captures semantic closeness similarly to Word2Vec through vector proximity. |  **Solved.**<br>Captures deep semantic relationships alongside sentence-level intent. |
+| **Out of Vocabulary (OOV)**<br>• *"The software uses an anti-keylogger"* | ❌ **Fails.**<br>If "anti-keylogger" wasn't in the training data, it is ignored (assigned 0 weight). | ❌ **Fails.**<br>Throws an out-of-vocabulary error or falls back to a generic `[UNK]` token vector. |  **Solved.**<br>Breaks it into subwords (`[anti]`, `[key]`, `[logger]`). Builds a vector from known pieces. |  **Solved.**<br>Uses **WordPiece tokenization**. Breaks unknown words down into foundational sub-units smoothly. |
+
+---
+
+## Part 2: The Technical Architecture Table
+*This captures the underlying engineering mechanics and core trade-offs.*
+
+| Model Class | Embedding Level | Dimensionality | Word Order Capability | The "Why" Behind Its Limits / Strengths |
+| :--- | :--- | :--- | :--- | :--- |
+| **One-Hot / BoW / TF-IDF** | Document / Utterance level | **V** (Vocabulary Size)<br>*Can be millions of dimensions* | ❌ None | **Strictly discrete tokens.** No concept of distance or relationships. Feature 452 and 453 are orthogonal mathematically. |
+| **LSA (Latent Semantic Analysis)** | Document / Topic level | **~100–500**<br>*Reduced via SVD* | ❌ None | **Linear compression.** Reduces BoW dimensions to find hidden "topics," but remains entirely blind to word sequences. |
+| **Word2Vec / GloVe** | Word level | **100–300**<br>*Dense & fixed* | 🟡 **Local Window Only**<br>*(Co-occurrence)* | **Static dictionary.** Learns by looking at neighbors during training, but flattens sequence data into a static vector at inference. |
+| **FastText** | Subword / Char n-gram level | **100–300**<br>*Dense & fixed* | 🟡 **Local Window Only**<br>*(Co-occurrence)* | **Subword dictionary.** Shares the exact same limitations as Word2Vec, but gracefully handles unseen words by parsing sub-fragments. |
+| **BERT** | Token / Subword level | **768–1024**<br>*Deep dense layers* |  **Full Sequence** | **Bidirectional Attention.** Calculates the relationship of every word to every other word simultaneously across the whole sentence. |
+
+---
+
+## Reference Answer Blueprint (How to Speak to an Interviewer)
+
+**Interviewer Question:** *"What are the limitations of static word embeddings like Word2Vec, and how do modern models address them?"*
+
+**Your Answer Response Framework:**
+1. **Define the core concept:** 
+   "Static embeddings like Word2Vec or GloVe map each unique word in a vocabulary to exactly one fixed vector."
+2. **Deliver the linguistic proofs (The flaws):** 
+   * "Because the dictionary is fixed, they completely fail at **polysemy**. For example, in the phrases *'river bank'* and *'money bank'*, Word2Vec generates the exact same vector for the word 'bank'."
+   * "Furthermore, when we aggregate these word vectors to represent full sentences (like using vector averaging), we throw away **word order**. This makes the model completely unable to tell the difference between structural opposites like *'dog bit man'* and *'man bit dog'*."
+3. **Connect to the modern architectural solution:** 
+   "To solve this, modern Transformers like **BERT** abandon static lookups entirely. They generate **contextualized, dynamic embeddings at runtime** based on a bidirectional attention mechanism. Additionally, BERT utilizes **positional encodings**, meaning the exact index of a word in a sequence modifies its mathematical signature. This allows the network to natively solve both word order and meaning shifts simultaneously."
+
 ### 7.2 The two bottlenecks that created the Transformer
 
 Word2Vec and GloVe are massive semantic upgrades over BoW and TF-IDF, but they share **two foundational bottlenecks** that paved the way for modern architectures:
