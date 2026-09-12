@@ -442,7 +442,7 @@ enjoy   1    0      0     0      0       0     1
 deep    0    1      0     0      1       0     0
 ```
 
-Each **row is already a word vector** — and unlike one-hot, `like` and `enjoy` now share the `I` dimension, so cosine similarity > 0. Real semantics, from pure counting.
+Each **row is already a word vector** — and unlike one-hot, `like` and `enjoy` now share the `I` dimension, so cosine similarity > 0. Real semantics, from pure counting. To get vector related to sentence, one idea is to add the word vectors together.
 
 **Problems:** V × V is enormous, still sparse, and raw counts are dominated by frequent words.
 
