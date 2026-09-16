@@ -31,19 +31,19 @@ $$z = \frac{1050 - 1000}{\frac{200}{\sqrt{50}}} = \frac{50}{28.28} = \mathbf{1.7
 * 📌 **Takeaway:** The difference **IS** statistically significant.
 
 ---
-
-One-Sample Z-Test vs. A/B TestingOne-Sample Z-Test (Auditing a Standard): Compares one single sample against a fixed, known baseline or standard (e.g., testing 50 bulbs against a factory-guaranteed 1000-hour lifespan). It does not test a change; it audits a group against an existing benchmark.A/B Testing / Two-Sample Test (Comparing Changes): Compares two active, concurrent groups against each other to see which performs better.A/B Test Example:Group A (Control): 50 standard bulbs.Group B (Variant): 50 bulbs with a new, cheaper filament.Goal: Test both simultaneously to see if the variant's lifespan differs from the control.
-# 💡 Stats Cheat Sheet: One-Sided vs. Two-Sided Hypothesis Testing
+### 💡 Stats Cheat Sheet: One-Sided vs. Two-Sided Hypothesis Testing
 
 ---
 
-## 🧠 Git Notes Takeaways
+### 🧠 Git Notes Takeaways
 1. **The Math is Identical, The Decision Varies:** The $z$-score ($1.77$) does not change. Only the **p-value calculation** shifts based on the tails.
 2. **Direction Matters:** Splitting your error across two tails makes it *harder* to reject the null hypothesis. Concentrating your error in one tail makes it *easier* to pass the alpha threshold.
 3. **Trigger Words:** 
    * "Different", "Changed", "Affected" $\rightarrow$ **Two-Tailed** (Double the tail area).
    * "Greater", "Less", "Improved", "Decreased" $\rightarrow$ **One-Tailed** (Keep single tail area).
 
+
+- One-Sample Z-Test vs. A/B TestingOne-Sample Z-Test (Auditing a Standard): Compares one single sample against a fixed, known baseline or standard (e.g., testing 50 bulbs against a factory-guaranteed 1000-hour lifespan). It does not test a change; it audits a group against an existing benchmark.A/B Testing / Two-Sample Test (Comparing Changes): Compares two active, concurrent groups against each other to see which performs better.A/B Test Example:Group A (Control): 50 standard bulbs.Group B (Variant): 50 bulbs with a new, cheaper filament.Goal: Test both simultaneously to see if the variant's lifespan differs from the control.
 
 # Comprehensive A/B Testing Study Guide & Interview Checklist
 *Based on Emma Ding's Fundamentals Curriculum and Industry Best Practices*
