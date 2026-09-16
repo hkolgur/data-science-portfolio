@@ -54,6 +54,84 @@
 
 ### Confidence Intervals
 - Range that would contain the true parameter in X% of repeated samples (NOT "95% probability true value is in this interval" — subtle but important frequentist distinction).
+# Confidence Intervals (CI) Reference Guide
+
+A **Confidence Interval (CI)** calculates a range of values that is highly likely to contain the true population parameter based on sample data.
+
+---
+
+## 1. Quick Reference Matrix
+
+| Scenario | Distribution to Use | Formula |
+| :--- | :--- | :--- |
+| **Population standard deviation ($\sigma$) is KNOWN** | **Z-Distribution** (Normal) | $\bar{x} \pm z^* \left(\frac{\sigma}{\sqrt{n}}\right)$ |
+| **Population standard deviation ($\sigma$) is UNKNOWN** | **T-Distribution** | $\bar{x} \pm t^* \left(\frac{s}{\sqrt{n}}\right)$ |
+
+---
+
+## 2. Variables Lookup Table
+
+| Variable | Description |
+| :--- | :--- |
+| $\bar{x}$ | **Sample Mean**: The average value from your sample group. |
+| $\mu$ | **Population Mean**: The true (often unknown) population average. |
+| $\sigma$ | **Population Standard Deviation**: Known population variability. |
+| $s$ | **Sample Standard Deviation**: Calculated variability from the sample. |
+| $n$ | **Sample Size**: Total number of observations in your dataset. |
+| $df$ | **Degrees of Freedom**: Used in T-distribution ($df = n - 1$). |
+| $z^*$ / $t^*$ | **Critical Value**: Multiplier based on target confidence level. |
+
+---
+
+## 3. Common Critical Values ($z^*$)
+
+For Z-distributions, use these standard critical values:
+*   **90% Confidence:** $z^* = 1.645$
+*   **95% Confidence:** $z^* = 1.960$
+*   **99% Confidence:** $z^* = 2.576$
+
+---
+
+## 4. The 4-Step Construction Process
+
+### Step 1: Gather Inputs
+Collect $\bar{x}$, $n$, your standard deviation ($\sigma$ or $s$), and choose a confidence level.
+
+### Step 2: Determine Critical Value ($z^*$ or $t^*$)
+*   If $\sigma$ is known, match your confidence level to the $z^*$ table above.
+*   If $\sigma$ is unknown, calculate $df = n - 1$ and locate $t^*$ using a T-table.
+
+### Step 3: Compute Margin of Error (MOE)
+The margin of error determines the width of the interval boundary:
+$$\text{Margin of Error} = (\text{Critical Value}) \times \left(\frac{\text{Standard Deviation}}{\sqrt{n}}\right)$$
+
+### Step 4: Calculate Bounds
+Add and subtract the MOE from your sample mean:
+$$\text{Lower Bound} = \bar{x} - \text{MOE}$$
+$$\text{Upper Bound} = \bar{x} + \text{MOE}$$
+
+### Boilerplate Interpretation
+> *"We are [Confidence Level]% confident that the true population mean ($\mu$) falls between [Lower Bound] and [Upper Bound]."*
+
+---
+
+## 5. Worked Example ($\sigma$ Known)
+
+### Scenario
+*   Sample size ($n$) = $36$
+*   Sample mean ($\bar{x}$) = $7$ hours
+*   Population standard deviation ($\sigma$) = $1.5$ hours
+*   Target Confidence = $95\%$ ($z^* = 1.96$)
+
+### Step-by-Step
+1. **Standard Error:** 
+   $$\frac{1.5}{\sqrt{36}} = \frac{1.5}{6} = 0.25$$
+2. **Margin of Error:** 
+   $$1.96 \times 0.25 = 0.49$$
+3. **Interval Range:** 
+   $$7 \pm 0.49 \rightarrow [6.51, 7.49]$$
+
+**Conclusion:** We are 95% confident that the true population mean sleep time is between 6.51 and 7.49 hours.
 
 ### Bayesian vs Frequentist
 - Frequentist: parameters are fixed, data is random; probability = long-run frequency.
