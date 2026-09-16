@@ -1,3 +1,50 @@
+#One sample Z test
+
+## 📝 Problem Scenario
+* **Guaranteed Mean ($\mu$):** 1000 hours
+* **Sample Mean ($\bar{x}$):** 1050 hours
+* **Population SD ($\sigma$):** 200 hours
+* **Sample Size ($n$):** 50 bulbs
+* **Significance Level ($\alpha$):** 0.05
+
+### 🧮 Calculating the Baseline Test Statistic
+$$z = \frac{1050 - 1000}{\frac{200}{\sqrt{50}}} = \frac{50}{28.28} = \mathbf{1.77}$$
+
+---
+
+## ⚡ How the Result Flips Based on Wording
+
+### Scenario A: Two-Sided Test
+* 🔍 **Keyword in Prompt:** *"Is the **difference** significant?"* 
+* 🎯 **What it means:** Testing if the lifespan is *either* higher or lower than 1000.
+* 📊 **Hypotheses:** $H_0: \mu = 1000$ vs. $H_1: \mu \neq 1000$
+* 🧮 **p-value:** **0.0771** (Doubled tail area because we check both extreme ends).
+* ⚖️ **Verdict:** $0.0771 > 0.05 \rightarrow$ **Fail to Reject $H_0$**
+* 📌 **Takeaway:** The difference is **NOT** statistically significant.
+
+### Scenario B: One-Sided Test
+* 🔍 **Keyword in Prompt:** *"Is the lifespan **greater than** 1000 hours?"* (or *"Did it **increase**?"*)
+* 🎯 **What it means:** Testing strictly in one direction (the upper tail).
+* 📊 **Hypotheses:** $H_0: \mu = 1000$ vs. $H_1: \mu > 1000$
+* 🧮 **p-value:** **0.0386** (Single tail area; half of the two-sided p-value).
+* ⚖️ **Verdict:** $0.0386 \leq 0.05 \rightarrow$ **Reject $H_0$**
+* 📌 **Takeaway:** The difference **IS** statistically significant.
+
+---
+
+One-Sample Z-Test vs. A/B TestingOne-Sample Z-Test (Auditing a Standard): Compares one single sample against a fixed, known baseline or standard (e.g., testing 50 bulbs against a factory-guaranteed 1000-hour lifespan). It does not test a change; it audits a group against an existing benchmark.A/B Testing / Two-Sample Test (Comparing Changes): Compares two active, concurrent groups against each other to see which performs better.A/B Test Example:Group A (Control): 50 standard bulbs.Group B (Variant): 50 bulbs with a new, cheaper filament.Goal: Test both simultaneously to see if the variant's lifespan differs from the control.
+# 💡 Stats Cheat Sheet: One-Sided vs. Two-Sided Hypothesis Testing
+
+---
+
+## 🧠 Git Notes Takeaways
+1. **The Math is Identical, The Decision Varies:** The $z$-score ($1.77$) does not change. Only the **p-value calculation** shifts based on the tails.
+2. **Direction Matters:** Splitting your error across two tails makes it *harder* to reject the null hypothesis. Concentrating your error in one tail makes it *easier* to pass the alpha threshold.
+3. **Trigger Words:** 
+   * "Different", "Changed", "Affected" $\rightarrow$ **Two-Tailed** (Double the tail area).
+   * "Greater", "Less", "Improved", "Decreased" $\rightarrow$ **One-Tailed** (Keep single tail area).
+
+
 # Comprehensive A/B Testing Study Guide & Interview Checklist
 *Based on Emma Ding's Fundamentals Curriculum and Industry Best Practices*
 
