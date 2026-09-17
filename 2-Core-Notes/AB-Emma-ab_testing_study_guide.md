@@ -91,7 +91,7 @@ For Sample size calculation with Binay Metric:
 *   **Alternative Hypothesis ($H_1$):** The variant creates a genuine, mathematically distinct impact on the OEC ($p_{treatment} - p_{control} \neq 0$).
   
 ### Core Statistical Parameters- Power Analysis 
-*   **Significance Level ($lpha$):**  The Pitch: "Significance level is the probability of a false positive (Type I error). It is the risk we are willing to take of launching a feature that actually does nothing.
+*   **Significance Level ($lpha$):**  The Pitch: "Significance level is the probability of a false positive (Type I error). It is the risk we are willing to take of launching a feature that actually does nothing. Brutally we can say  risk I'm taking to waste my time and money if it doesn't work
 *   "The Technical Definition: The probability of rejecting the null hypothesis (H₀) when it is actually true. Usually set at 5% (α = 0.05).
 *   The Business Analogy: Imagine you test a new, flashy blue button. The test says it drives more clicks, so you launch it. In reality, it was just random noise, and the button didn't help at all. You wasted engineering time launching a useless feature.
 *   **Statistical Power ($1-eta$):** The Pitch: "Statistical power is the probability of a true positive. It is our test's ability to detect a real, winning feature if one actually exists.
