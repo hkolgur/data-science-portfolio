@@ -91,8 +91,12 @@ For Sample size calculation with Binay Metric:
 *   **Alternative Hypothesis ($H_1$):** The variant creates a genuine, mathematically distinct impact on the OEC ($p_{treatment} - p_{control} \neq 0$).
   
 ### Core Statistical Parameters- Power Analysis 
-*   **Significance Level ($lpha$):** The probability of committing a Type I error (rejecting the null hypothesis when it is actually true—a "false positive"). The standard industry threshold is strictly capped at $lpha = 0.05$. If Engineering cost is high to conduct test then business may keep alpha little high vs if the error is very critical then alpha will be set to very low.
-*   **Statistical Power ($1-eta$):** The probability of correctly rejecting the null hypothesis when a true effect exists (avoiding a Type II "false negative"). The standard industry baseline is targeted at $80\%$ ($eta = 0.20$).
+*   **Significance Level ($lpha$):**  The Pitch: "Significance level is the probability of a false positive (Type I error). It is the risk we are willing to take of launching a feature that actually does nothing. Brutally we can say  risk I'm taking to waste my time and money if it doesn't work
+*   "The Technical Definition: The probability of rejecting the null hypothesis (H₀) when it is actually true. Usually set at 5% (α = 0.05).
+*   The Business Analogy: Imagine you test a new, flashy blue button. The test says it drives more clicks, so you launch it. In reality, it was just random noise, and the button didn't help at all. You wasted engineering time launching a useless feature.
+*   **Statistical Power ($1-eta$):** The Pitch: "Statistical power is the probability of a true positive. It is our test's ability to detect a real, winning feature if one actually exists.
+*   "The Technical Definition: The probability of correctly rejecting the null hypothesis (H₀) when the alternative hypothesis (H₁) is true. Usually targeted at 80% (0.80).
+*   The Business Analogy: Imagine your team built a revolutionary checkout flow that actually increases revenue by 5%. If your test's power is too low, the test might conclude "no difference," causing you to scrap the feature and miss out on massive revenue.
 *   **Minimum Detectable Effect (MDE):** MDE is smallest change your test can reliably spot based on your sample size and noise level..The smallest metric lift or absolute shift that the business considers practically meaningful to detect. Setting a smaller MDE requires an exponentially larger sample size to achieve sufficient statistical power.
    - What is MDE?
          1. It is a statistical number.
