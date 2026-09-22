@@ -480,6 +480,64 @@ They **drop columns**, so they are transformers. `SelectFromModel(RandomForestCl
 
 `Pipeline`, `ColumnTransformer`, `FeatureUnion`.
 
+commit -m "docs: add concise examples for ColumnTransformer and FeatureUnion"
+
+# ------------------------------------------------------------------------
+# EXAMPLE 1: ColumnTransformer (Transform distinct columns separately)
+# ------------------------------------------------------------------------
+# Separates categorical and numerical columns, applies parallel treatments, 
+# and merges them back together.
+
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+import pandas as pd
+
+# Heterogeneous dataset
+df = pd.DataFrame({
+    'age': [25, 45, 31],
+    'city': ['NY', 'LA', 'NY']
+})
+
+preprocessor = ColumnTransformer(transformers=[
+    ('num', StandardScaler(), ['age']),
+    ('cat', OneHotEncoder(), ['city'])
+])
+
+# Result: 1 column of scaled age + 2 columns of one-hot encoded cities
+X_trans = preprocessor.fit_transform(df)
+
+
+# ------------------------------------------------------------------------
+# EXAMPLE 2: FeatureUnion (Extract multiple feature styles from same data)
+# ------------------------------------------------------------------------
+# Passes the *entire* text matrix to both CountVectorizer and TfidfVectorizer
+# at the same time to create a massive combined feature pool.
+
+from sklearn.pipeline import FeatureUnion
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+
+text_data = ["machine learning pipeline", "feature union example"]
+
+combined_features = FeatureUnion([
+    ('counts', CountVectorizer()),
+    ('tfidf', TfidfVectorizer())
+])
+
+# Result: Parallel outputs concatenated into a single large array
+X_features = combined_features.fit_transform(text_data)
+
+#In pipeline use as below:
+text_transformers = FeatureUnion([
+    ('counts', CountVectorizer()),
+    ('tfidf', TfidfVectorizer())
+])
+
+# 3. Data Routing: Use ColumnTransformer to process columns using their corresponding transformers
+preprocessor = ColumnTransformer(transformers=[
+    ('num_scaler', StandardScaler(), ['age']),
+    ('text_union', text_transformers, 'review') # FeatureUnion processes 'review' column
+])
+
 > `Pipeline` exposes `transform`/`fit_transform` **only if its final step is a transformer**, and `predict` **only if its final step is a predictor**. It borrows the API of its last step.
 
 ---
