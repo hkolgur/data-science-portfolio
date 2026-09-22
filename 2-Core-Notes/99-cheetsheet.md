@@ -350,10 +350,17 @@ tree_pipe = Pipeline(steps=[
 param_grid = {
     'tree_clf__n_estimators':[50, 100, 200, 300, 500],         # Number of trees in the forest
     'tree_clf__max_depth': [5, 10, None],          # Controls tree depth (None allows max depth)
-    'tree_clf__min_samples_split':,         # Minimum samples required to split a node.min_samples_leaf should be half of this.
+    'tree_clf__min_samples_split': [0.01,0.05] , # Minimum samples required to split a node.
+                                                 #1% or 5% of data in node regardless of dataset size .
+                                                 #min_samples_leaf should be half of this.
     'tree_clf__max_features': ['sqrt', 'log2'],    # Number of features considered at each split
     'smote__k_neighbors': [3, 5]                  # You can even tune SMOTE parameters simultaneously!
 }
+#variations for min_sample_split and min_sample_leaf:
+#    # Your specified values
+    'min_samples_split': [0.01, 0.05], # for small dataset size pass [2, 5, 10, 15]
+    # Scaled proportionally to match your min_samples_split (roughly 1/3 to 1/2 of split size)
+    'min_samples_leaf': [0.003, 0.005, 0.01, 0.02], # for small dataset size pass [1, 2, 4, 6]
 
 #Initialize and run Grid Search
 grid_search = GridSearchCV(
