@@ -348,9 +348,9 @@ tree_pipe = Pipeline(steps=[
 #  Define the Tree-Specific Hyperparameter Grid
 # Format: pipelineStepName__hyperparameterName
 param_grid = {
-    'tree_clf__n_estimators':,         # Number of trees in the forest
+    'tree_clf__n_estimators':[50, 100, 200, 300, 500],         # Number of trees in the forest
     'tree_clf__max_depth': [5, 10, None],          # Controls tree depth (None allows max depth)
-    'tree_clf__min_samples_split':,         # Minimum samples required to split a node
+    'tree_clf__min_samples_split':,         # Minimum samples required to split a node.min_samples_leaf should be half of this.
     'tree_clf__max_features': ['sqrt', 'log2'],    # Number of features considered at each split
     'smote__k_neighbors': [3, 5]                  # You can even tune SMOTE parameters simultaneously!
 }
